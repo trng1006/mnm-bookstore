@@ -1,58 +1,81 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📚 MNM Bookstore (Đồ án Lập trình Mã nguồn mở)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+MNM Bookstore là dự án website bán sách trực tuyến được xây dựng dựa trên framework Laravel. Đây là đồ án môn học "Lập trình mã nguồn mở", áp dụng các kiến thức về mô hình MVC, thao tác với Cơ sở dữ liệu và tương tác bất đồng bộ (AJAX).
 
-## About Laravel
+## 🚀 Công nghệ sử dụng
+- **Backend:** PHP 8.x, Laravel Framework, Eloquent ORM.
+- **Frontend:** HTML5, CSS3, Tailwind CSS (đóng gói qua Vite), JavaScript thuần (Vanilla JS / Fetch API).
+- **Database:** SQLite (Mặc định) / MySQL.
+- **Kiến trúc:** Chuẩn mô hình MVC (Model - View - Controller).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ✨ Chức năng nổi bật
+- Hiển thị danh sách Sách mới, Sách bán chạy.
+- Tính năng **Lọc và Sắp xếp** (theo giá, tên, độ phổ biến, mới nhất).
+- **Phân trang AJAX** (chuyển trang và lọc không cần tải lại toàn bộ trang, tối ưu trải nghiệm người dùng).
+- Dữ liệu mẫu phong phú (Được crawl trực tiếp từ các trang thương mại điện tử thực tế).
+- Giao diện Responsive chuẩn Web Design Guidelines tối giản, hiện đại.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ⚙️ Yêu cầu hệ thống
+- PHP >= 8.1
+- Composer
+- Node.js & npm (để build CSS/JS)
+- Git
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🛠️ Hướng dẫn cài đặt và khởi chạy (Dành cho người mới)
 
-## Learning Laravel
+Để chạy dự án này trên máy cá nhân, bạn vui lòng làm theo các bước sau:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+**Bước 1: Clone mã nguồn về máy**
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/trng1006/mnm-bookstore.git
+cd mnm-bookstore
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+**Bước 2: Cài đặt các thư viện (Dependencies)**
+```bash
+composer install
+npm install
+```
 
-## Contributing
+**Bước 3: Cấu hình môi trường (Environment)**
+Tạo file `.env` từ file mẫu:
+```bash
+cp .env.example .env
+```
+Khởi tạo App Key cho dự án Laravel:
+```bash
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+**Bước 4: Thiết lập Cơ sở dữ liệu (Database)**
+*Mặc định dự án sử dụng SQLite để dễ dàng chạy thử. Bạn cần tạo file database trống trước:*
+```bash
+# Dành cho macOS/Linux:
+touch database/database.sqlite
 
-## Code of Conduct
+# Dành cho Windows (Powershell):
+ni database/database.sqlite -ItemType File
+```
+Sau đó, chạy lệnh sau để tạo các bảng (tables) và nạp dữ liệu mẫu (sách, tác giả, danh mục):
+```bash
+php artisan migrate --seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**Bước 5: Khởi chạy Server**
+Mở 2 Terminal (cửa sổ lệnh) riêng biệt trong thư mục dự án và chạy đồng thời 2 lệnh sau:
 
-## Security Vulnerabilities
+*Terminal 1 (Chạy Backend Laravel):*
+```bash
+php artisan serve
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+*Terminal 2 (Chạy Frontend Vite để biên dịch Tailwind CSS):*
+```bash
+npm run dev
+```
 
-## License
+**Bước 6: Trải nghiệm**
+Mở trình duyệt và truy cập vào địa chỉ: **http://localhost:8000**
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+*Đồ án thuộc học phần Lập trình Mã nguồn mở.*

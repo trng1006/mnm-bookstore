@@ -21,7 +21,7 @@ MNM Bookstore là dự án website bán sách trực tuyến được xây dựn
 - Node.js & npm (để build CSS/JS)
 - Git
 
-## 🛠️ Hướng dẫn cài đặt và khởi chạy (Dành cho người mới)
+## 🛠️ Hướng dẫn cài đặt và khởi chạy 
 
 Để chạy dự án này trên máy cá nhân, bạn vui lòng làm theo các bước sau:
 

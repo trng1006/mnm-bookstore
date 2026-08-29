@@ -1,0 +1,119 @@
+<header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-brand-bg border-b border-brand-border shadow-sm">
+    <div id="header-container" class="mx-auto flex justify-between items-center gap-4 transition-all duration-500 max-w-[1440px] px-4 md:px-8 py-4">
+        
+        <!-- Left: Logo & Category Dropdown -->
+        <div class="flex items-center gap-4 md:gap-8">
+            <!-- Logo -->
+            <a href="{{ route('home') }}" class="font-display text-2xl md:text-3xl font-bold text-brand-text hover:text-brand-accent transition-colors duration-300">
+                MNM Bookstore
+            </a>
+
+            <!-- Category Dropdown Button (Mega Menu) -->
+            <div class="relative group hidden md:block h-full py-2">
+                <button class="flex items-center gap-1 text-brand-text hover:text-brand-accent transition-colors cursor-pointer">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg>
+                    <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                
+                <!-- Mega Menu Dropdown -->
+                <div class="absolute top-full left-0 w-[700px] bg-white border border-brand-border shadow-hover rounded-[var(--radius-card)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex z-50 overflow-hidden mt-1">
+                    <!-- Left Sidebar (Main Categories) -->
+                    <div class="w-1/3 bg-brand-surface p-4 flex flex-col gap-2">
+                        <div class="font-display font-bold text-brand-text mb-2 px-3 pb-2 border-b border-brand-border">Danh mục sản phẩm</div>
+                        <a href="#" class="px-3 py-2 rounded-xl bg-white font-ui text-brand-text font-bold shadow-sm">Sách Trong Nước</a>
+                        <a href="#" class="px-3 py-2 rounded-xl hover:bg-white font-ui text-brand-muted hover:text-brand-text transition-colors">Sách Ngoại Văn</a>
+                        <a href="#" class="px-3 py-2 rounded-xl hover:bg-white font-ui text-brand-muted hover:text-brand-text transition-colors">Văn phòng phẩm</a>
+                        <a href="#" class="px-3 py-2 rounded-xl hover:bg-white font-ui text-brand-muted hover:text-brand-text transition-colors">Đồ chơi</a>
+                    </div>
+                    
+                    <!-- Right Content (Sub Categories) -->
+                    <div class="w-2/3 p-6 grid grid-cols-2 gap-x-8 gap-y-6">
+                        <div>
+                            <h5 class="font-ui font-bold text-brand-text mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-2 h-2 bg-brand-accent rounded-full"></span> Văn Học
+                            </h5>
+                            <ul class="space-y-2.5 text-sm font-ui text-brand-muted">
+                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Tiểu thuyết</a></li>
+                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Truyện ngắn - Tản văn</a></li>
+                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Light Novel</a></li>
+                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Ngôn tình</a></li>
+                                <li><a href="#" class="text-brand-accent font-semibold text-xs mt-1 block">Xem tất cả</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="font-ui font-bold text-brand-text mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-2 h-2 bg-[#9DB67A] rounded-full"></span> Kinh Tế
+                            </h5>
+                            <ul class="space-y-2.5 text-sm font-ui text-brand-muted">
+                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Bài học kinh doanh</a></li>
+                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Quản trị - Lãnh đạo</a></li>
+                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Marketing - Bán hàng</a></li>
+                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Phân tích kinh tế</a></li>
+                                <li><a href="#" class="text-brand-accent font-semibold text-xs mt-1 block">Xem tất cả</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center: Search Bar -->
+        <div class="hidden lg:flex flex-1 max-w-2xl mx-8 relative">
+            <input type="text" placeholder="Tìm kiếm sách, tác giả..." class="w-full bg-white border border-brand-border rounded-full py-2 px-5 pr-12 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent font-ui text-brand-text transition-colors shadow-sm">
+            <button class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-brand-accent text-white hover:bg-brand-accent-hover transition-colors rounded-full p-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Right: Utility Nav (Icons + Text) -->
+        <nav class="flex items-center gap-5 md:gap-8">
+            <!-- Thông báo -->
+            <a href="#" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                <span class="text-[11px] font-ui font-semibold hidden md:block">Thông báo</span>
+            </a>
+            
+            <!-- Giỏ hàng -->
+            <a href="{{ route('cart.index') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors relative group">
+                <div class="relative mb-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <span class="absolute -top-1.5 -right-2 bg-brand-accent text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold">0</span>
+                </div>
+                <span class="text-[11px] font-ui font-semibold hidden md:block">Giỏ hàng</span>
+            </a>
+
+            <!-- Tài khoản -->
+            <a href="{{ route('login') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <span class="text-[11px] font-ui font-semibold hidden md:block">Tài khoản</span>
+            </a>
+        </nav>
+    </div>
+</header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const header = document.getElementById('main-header');
+        const container = document.getElementById('header-container');
+        
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 20) {
+                // Trở về như cũ (Normal/Compact)
+                container.classList.remove('max-w-[1440px]', 'md:px-8', 'py-4');
+                container.classList.add('max-w-7xl', 'md:px-6', 'lg:px-8', 'py-2');
+                header.classList.add('shadow-md', 'bg-brand-bg/95', 'backdrop-blur-md');
+                header.classList.remove('bg-brand-bg', 'shadow-sm');
+            } else {
+                // Kéo dãn sang 2 bên (Stretched)
+                container.classList.remove('max-w-7xl', 'md:px-6', 'lg:px-8', 'py-2');
+                container.classList.add('max-w-[1440px]', 'md:px-8', 'py-4');
+                header.classList.remove('shadow-md', 'bg-brand-bg/95', 'backdrop-blur-md');
+                header.classList.add('bg-brand-bg', 'shadow-sm');
+            }
+        });
+    });
+</script>

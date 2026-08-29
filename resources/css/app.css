@@ -1,9 +1,39 @@
-@import 'tailwindcss';
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
+@import "tailwindcss";
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+  /* Warm Humanist / Soft Approachable System */
+  
+  /* Colors */
+  --color-brand-bg: #FAF8F5;       /* Warm oat/cream ground */
+  --color-brand-surface: #F0EBE1;  /* Slightly darker cream for cards/surfaces */
+  --color-brand-text: #2D3748;     /* Deep warm slate instead of harsh black */
+  --color-brand-muted: #718096;    /* Soft gray for secondary text */
+  --color-brand-accent: #E27D60;   /* Warm terracotta/coral */
+  --color-brand-accent-hover: #C86A50;
+  --color-brand-border: #E2D9C8;   /* Soft warm border */
+
+  /* Typography */
+  --font-display: "Lora", serif;          /* Soft, approachable serif with thick strokes */
+  --font-ui: "Nunito", sans-serif;        /* Rounded, friendly sans for UI elements */
+  
+  /* Border Radius */
+  --radius-card: 24px;
+  --radius-button: 9999px; /* Pill shape */
+  
+  /* Shadows */
+  --shadow-soft: 0 10px 40px -10px rgba(226, 125, 96, 0.15); /* Terracotta tinted shadow */
+  --shadow-hover: 0 20px 40px -10px rgba(226, 125, 96, 0.25);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-ui);
+    background-color: var(--color-brand-bg);
+    color: var(--color-brand-text);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 500;
+  }
 }

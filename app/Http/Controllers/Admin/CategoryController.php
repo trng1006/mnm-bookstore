@@ -11,6 +11,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::paginate(10);
+
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -29,6 +30,7 @@ class CategoryController extends Controller
         ]);
 
         Category::create($validated);
+
         return redirect()->route('admin.categories.index')->with('success', 'Danh mục đã được thêm.');
     }
 
@@ -41,18 +43,20 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:categories,slug,' . $category->id,
+            'slug' => 'required|string|max:255|unique:categories,slug,'.$category->id,
             'description' => 'nullable|string',
             'icon' => 'nullable|string|max:255',
         ]);
 
         $category->update($validated);
+
         return redirect()->route('admin.categories.index')->with('success', 'Danh mục đã được cập nhật.');
     }
 
     public function destroy(Category $category)
     {
         $category->delete();
+
         return redirect()->route('admin.categories.index')->with('success', 'Danh mục đã bị xóa.');
     }
 }

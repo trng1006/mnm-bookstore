@@ -28,10 +28,10 @@
     <!-- Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-12">
         @forelse($books as $book)
-            <a href="{{ route('books.show', $book->slug) }}" class="group block bg-white p-4 rounded-[var(--radius-card)] transition-all duration-500 hover:shadow-hover hover:-translate-y-2 border border-brand-border border-opacity-50 flex flex-col h-full">
+            <div class="group block bg-white p-4 rounded-[var(--radius-card)] transition-all duration-500 hover:shadow-hover hover:-translate-y-2 border border-brand-border border-opacity-50 flex flex-col h-full">
                 
                 <!-- Image -->
-                <div class="relative bg-brand-surface aspect-[3/4] mb-5 rounded-2xl flex items-center justify-center text-brand-muted text-sm overflow-hidden">
+                <a href="{{ route('books.show', $book->slug) }}" class="block relative bg-brand-surface aspect-[3/4] mb-5 rounded-2xl flex items-center justify-center text-brand-muted text-sm overflow-hidden">
                     @if($book->is_new)
                         <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm bg-[#9DB67A] text-white">
                             MỚI
@@ -50,11 +50,13 @@
                         <span class="font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700">Hình Bìa</span>
                     @endif
                     <div class="absolute inset-y-0 left-0 w-1 bg-gradient-to-r from-black/5 to-transparent"></div>
-                </div>
+                </a>
                 
                 <!-- Info -->
                 <div class="px-2 flex flex-col flex-grow">
-                    <h3 class="font-display text-lg font-bold mb-1 group-hover:text-brand-accent transition-colors line-clamp-2" title="{{ $book->title }}">{{ $book->title }}</h3>
+                    <a href="{{ route('books.show', $book->slug) }}">
+                        <h3 class="font-display text-lg font-bold mb-1 group-hover:text-brand-accent transition-colors line-clamp-2" title="{{ $book->title }}">{{ $book->title }}</h3>
+                    </a>
                     <div class="text-brand-muted text-sm font-ui mb-2">{{ $book->author->name ?? 'Chưa rõ tác giả' }}</div>
                     
                     <!-- Rating -->
@@ -72,13 +74,19 @@
                         @endif
                     </div>
 
-                    <!-- Action -->
-                    <div class="grid grid-cols-2 gap-2 mt-auto">
-                        <button class="font-ui text-sm font-bold text-brand-text bg-brand-surface hover:bg-brand-border rounded-xl py-2.5 transition-colors">Giỏ hàng</button>
-                        <button class="font-ui text-sm font-bold text-white bg-brand-text hover:bg-brand-accent rounded-xl py-2.5 transition-colors shadow-sm">Mua ngay</button>
-                    </div>
+                    <!-- Actions -->
+                    <form method="POST" action="{{ route('cart.add') }}" class="grid grid-cols-2 gap-2 mt-auto">
+                        @csrf
+                        <input type="hidden" name="book_id" value="{{ $book->id }}">
+                        <button type="submit" class="font-ui text-xs font-bold text-brand-text bg-brand-surface hover:bg-brand-border rounded-xl py-2.5 transition-colors cursor-pointer" title="Thêm vào giỏ hàng">
+                            Giỏ hàng
+                        </button>
+                        <button type="submit" name="buy_now" value="1" class="font-ui text-xs font-bold text-white bg-brand-text hover:bg-brand-accent rounded-xl py-2.5 transition-colors shadow-sm cursor-pointer" title="Mua ngay">
+                            Mua ngay
+                        </button>
+                    </form>
                 </div>
-            </a>
+            </div>
         @empty
             <div class="col-span-full py-12 text-center text-brand-muted font-ui">
                 Không tìm thấy cuốn sách nào.

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use App\Models\Review;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
@@ -40,5 +41,88 @@ class BookController extends Controller
         $books = $query->paginate(12)->withQueryString();
 
         return view('client.pages.books.index', compact('books', 'sort'));
+    }
+
+    /**
+     * Hiển thị trang chi tiết sách
+     */
+    public function showBookDetails(string $slug)
+    {
+        /** @var Book $book */
+        $book = Book::with(['author', 'category', 'reviews.user'])
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        // 4 sách liên quan (ưu tiên cùng danh mục, loại trừ sách hiện tại)
+        $relatedBooks = Book::with(['author', 'category'])
+            ->where('id', '!=', $book->id)
+            ->where(function ($query) use ($book) {
+                if ($book->category_id) {
+                    $query->where('category_id', $book->category_id);
+                } else {
+                    $query->where('author_id', $book->author_id);
+                }
+            })
+            ->inRandomOrder()
+            ->take(4)
+            ->get();
+
+        // Nếu ít hơn 4 cuốn, lấy thêm các sách nổi bật khác
+        if ($relatedBooks->count() < 4) {
+            $extraBooks = Book::with(['author', 'category'])
+                ->where('id', '!=', $book->id)
+                ->whereNotIn('id', $relatedBooks->pluck('id'))
+                ->take(4 - $relatedBooks->count())
+                ->get();
+            $relatedBooks = $relatedBooks->concat($extraBooks);
+        }
+
+        // Thống kê phân bổ sao
+        $ratingCounts = [
+            5 => $book->reviews->where('rating', 5)->count(),
+            4 => $book->reviews->where('rating', 4)->count(),
+            3 => $book->reviews->where('rating', 3)->count(),
+            2 => $book->reviews->where('rating', 2)->count(),
+            1 => $book->reviews->where('rating', 1)->count(),
+        ];
+
+        return view('client.pages.books.show', compact('book', 'relatedBooks', 'ratingCounts'));
+    }
+
+    /**
+     * Lưu đánh giá / nhận xét của người dùng
+     */
+    public function storeReview(Request $request, string $slug)
+    {
+        if (! auth()->check()) {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để gửi đánh giá.');
+        }
+
+        /** @var Book $book */
+        $book = Book::where('slug', $slug)->firstOrFail();
+
+        $validated = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'required|string|min:5|max:1000',
+        ], [
+            'rating.required' => 'Vui lòng chọn số sao đánh giá.',
+            'comment.required' => 'Vui lòng nhập nội dung nhận xét.',
+            'comment.min' => 'Nội dung nhận xét tối thiểu 5 ký tự.',
+        ]);
+
+        Review::updateOrCreate(
+            [
+                'user_id' => auth()->id(),
+                'book_id' => $book->id,
+            ],
+            [
+                'rating' => $validated['rating'],
+                'comment' => $validated['comment'],
+            ]
+        );
+
+        $book->updateRatingStats();
+
+        return back()->with('success', 'Cảm ơn bạn! Đánh giá của bạn đã được ghi nhận.');
     }
 }

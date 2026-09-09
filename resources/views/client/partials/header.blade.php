@@ -70,18 +70,90 @@
         </div>
 
         <!-- Right: Utility Nav (Icons + Text) -->
-        <nav class="flex items-center gap-5 md:gap-8">
-            <!-- Thông báo -->
-            <a href="#" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                <span class="text-[11px] font-ui font-semibold hidden md:block">Thông báo</span>
+        <nav class="flex items-center gap-4 md:gap-7">
+            <!-- Tra cứu đơn hàng -->
+            <a href="{{ route('orders.tracking') }}" class="hidden sm:flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors" title="Tra cứu đơn hàng">
+                <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                <span class="text-[11px] font-ui font-semibold">Tra cứu</span>
             </a>
+
+            <!-- Thông báo -->
+            @auth
+                @php
+                    $unreadNotifications = auth()->user()->unreadNotifications;
+                    $unreadCount = $unreadNotifications->count();
+                @endphp
+                <div class="relative group">
+                    <a href="{{ route('account.notifications.index') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors relative">
+                        <div class="relative mb-1">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                            @if($unreadCount > 0)
+                                <span class="absolute -top-1.5 -right-2 bg-brand-accent text-white min-w-4 h-4 px-1 rounded-full text-[10px] flex items-center justify-center font-bold animate-pulse">
+                                    {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                                </span>
+                            @endif
+                        </div>
+                        <span class="text-[11px] font-ui font-semibold hidden md:block">Thông báo</span>
+                    </a>
+
+                    <!-- Notifications Dropdown -->
+                    <div class="absolute right-0 mt-2 w-80 bg-white border border-brand-border rounded-xl shadow-hover opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden font-ui">
+                        <div class="p-3 border-b border-brand-border flex items-center justify-between bg-brand-surface">
+                            <span class="font-bold text-xs text-brand-text uppercase tracking-wider">Thông báo mới</span>
+                            @if($unreadCount > 0)
+                                <form method="POST" action="{{ route('account.notifications.readAll') }}">
+                                    @csrf
+                                    <button type="submit" class="text-[11px] text-brand-accent hover:underline font-semibold cursor-pointer">Đã đọc tất cả</button>
+                                </form>
+                            @endif
+                        </div>
+
+                        <div class="max-h-64 overflow-y-auto divide-y divide-brand-border/60">
+                            @forelse($unreadNotifications->take(4) as $notif)
+                                <div class="p-3 hover:bg-brand-surface/40 transition-colors text-xs">
+                                    <h5 class="font-bold text-brand-text line-clamp-1">{{ $notif->data['title'] ?? 'Thông báo đơn hàng' }}</h5>
+                                    <p class="text-brand-muted text-[11px] mt-0.5 line-clamp-2">{{ $notif->data['message'] ?? '' }}</p>
+                                    <div class="flex justify-between items-center mt-2">
+                                        <span class="text-[10px] text-brand-muted">{{ $notif->created_at->diffForHumans() }}</span>
+                                        @if(!empty($notif->data['url']))
+                                            <form method="POST" action="{{ route('account.notifications.read', $notif->id) }}">
+                                                @csrf
+                                                <button type="submit" class="text-[11px] font-semibold text-brand-accent hover:underline cursor-pointer">Xem</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="p-6 text-center text-xs text-brand-muted">
+                                    Không có thông báo mới nào.
+                                </div>
+                            @endforelse
+                        </div>
+
+                        <div class="p-2.5 border-t border-brand-border bg-brand-surface text-center">
+                            <a href="{{ route('account.notifications.index') }}" class="text-xs font-bold text-brand-accent hover:underline block">
+                                Xem tất cả thông báo →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <a href="{{ route('login') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
+                    <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    <span class="text-[11px] font-ui font-semibold hidden md:block">Thông báo</span>
+                </a>
+            @endauth
             
             <!-- Giỏ hàng -->
+            @php
+                $cartCount = array_sum(array_column(session('cart', []), 'quantity'));
+            @endphp
             <a href="{{ route('cart.index') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors relative group">
                 <div class="relative mb-1">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    <span class="absolute -top-1.5 -right-2 bg-brand-accent text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold">0</span>
+                    <span id="cart-badge" class="absolute -top-1.5 -right-2 bg-brand-accent text-white min-w-4 h-4 px-1 rounded-full text-[10px] flex items-center justify-center font-bold {{ $cartCount > 0 ? '' : 'hidden' }}">
+                        {{ $cartCount }}
+                    </span>
                 </div>
                 <span class="text-[11px] font-ui font-semibold hidden md:block">Giỏ hàng</span>
             </a>
@@ -91,18 +163,29 @@
                 <div class="relative group">
                     <a href="{{ route('account.profile') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
                         <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        <span class="text-[11px] font-ui font-semibold hidden md:block">{{ auth()->user()->name }}</span>
+                        <span class="text-[11px] font-ui font-semibold hidden md:block truncate max-w-[80px]">{{ auth()->user()->name }}</span>
                     </a>
                     <!-- User Dropdown -->
-                    <div class="absolute right-0 mt-2 w-48 bg-white border border-brand-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                    <div class="absolute right-0 mt-2 w-48 bg-white border border-brand-border rounded-xl shadow-hover opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden font-ui">
                         @if(auth()->user()->isAdmin() || auth()->user()->isStaff())
-                            <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-brand-text hover:bg-brand-surface hover:text-brand-accent">Trang quản trị</a>
+                            <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2.5 text-sm text-brand-text hover:bg-brand-surface hover:text-brand-accent font-semibold border-b border-brand-border">
+                                Trang quản trị
+                            </a>
                         @endif
                         <a href="{{ route('account.profile') }}" class="block px-4 py-2 text-sm text-brand-text hover:bg-brand-surface hover:text-brand-accent">Hồ sơ cá nhân</a>
-                        <form method="POST" action="{{ route('logout') }}" class="block">
-                            @csrf
-                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-brand-text hover:bg-brand-surface hover:text-brand-accent">Đăng xuất</button>
-                        </form>
+                        <a href="{{ route('account.profile') }}" class="block px-4 py-2 text-sm text-brand-text hover:bg-brand-surface hover:text-brand-accent">Lịch sử đơn hàng</a>
+                        <a href="{{ route('account.notifications.index') }}" class="block px-4 py-2 text-sm text-brand-text hover:bg-brand-surface hover:text-brand-accent flex items-center justify-between">
+                            <span>Thông báo</span>
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span class="bg-brand-accent text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">{{ $unreadCount }}</span>
+                            @endif
+                        </a>
+                        <div class="border-t border-brand-border mt-1">
+                            <form method="POST" action="{{ route('logout') }}" class="block">
+                                @csrf
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer">Đăng xuất</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             @else

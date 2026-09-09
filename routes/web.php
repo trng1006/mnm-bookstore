@@ -1,37 +1,47 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AuthorController;
+use App\Http\Controllers\Admin\BookController as AdminBookController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Client\AccountController;
+use App\Http\Controllers\Client\BookController;
+use App\Http\Controllers\Client\CartController;
+use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\HomeController;
+use App\Http\Controllers\Client\NotificationController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| Web Routes - MNM Bookstore
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
-use App\Http\Controllers\Client\BookController;
-
-// PUBLIC ROUTES (GUEST)
+// --- 1. PUBLIC ROUTES (Khách xem sản phẩm) ---
 Route::get('/', [HomeController::class, 'showHomePage'])->name('home');
 
 Route::get('/books', [BookController::class, 'index'])->name('books.index');
+Route::get('/books/{slug}', [BookController::class, 'showBookDetails'])->name('books.show');
+Route::post('/books/{slug}/reviews', [BookController::class, 'storeReview'])->middleware('auth')->name('books.reviews.store');
 
-Route::get('/books/{slug}', function ($slug) {
-    return "Chi tiết sách: " . $slug . " (Sẽ làm ở Phase 2)";
-})->name('books.show');
+// --- 2. SHOPPING CART ROUTES (Giỏ hàng) ---
+Route::get('/cart', [CartController::class, 'showCart'])->name('cart.index');
+Route::get('/cart/view', [CartController::class, 'showCart'])->name('cart.show');
+Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
+Route::delete('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
+Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+Route::post('/cart/coupon/apply', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
+Route::delete('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
-Route::get('/cart', function () {
-    return "Giỏ hàng (Sẽ làm ở Phase 3)";
-})->name('cart.index');
+// --- 3. PUBLIC ORDER TRACKING (Tra cứu đơn hàng) ---
+Route::get('/orders/tracking', [AccountController::class, 'showTrackingForm'])->name('orders.tracking');
 
-// Auth Routes
-use App\Http\Controllers\AuthController;
-
+// --- 4. AUTHENTICATION ROUTES ---
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'processLogin']);
@@ -43,27 +53,41 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'processLogout'])->name('logout');
 });
 
-// CUSTOMER ROUTES (Requires Auth)
-Route::middleware('auth')->prefix('account')->name('account.')->group(function () {
-    Route::get('/profile', function () {
-        return "Hồ sơ của tôi (Sẽ làm ở Phase 4)";
-    })->name('profile');
+// --- 5. CHECKOUT ROUTES (Bắt buộc đăng nhập để mua hàng) ---
+Route::middleware('auth')->prefix('checkout')->name('checkout.')->group(function () {
+    Route::get('/', [CheckoutController::class, 'showCheckoutForm'])->name('index');
+    Route::post('/', [CheckoutController::class, 'processCheckout'])->name('process');
+    Route::get('/success/{order_number}', [CheckoutController::class, 'showOrderSuccess'])->name('success');
 });
 
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\BookController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\AuthorController;
-use App\Http\Controllers\Admin\UserController;
+// --- 6. CUSTOMER ACCOUNT & NOTIFICATIONS ROUTES ---
+Route::middleware('auth')->prefix('account')->name('account.')->group(function () {
+    // Hồ sơ cá nhân & Lịch sử đơn hàng
+    Route::get('/profile', [AccountController::class, 'showProfile'])->name('profile');
+    Route::post('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/orders/{order_number}', [AccountController::class, 'showOrderDetail'])->name('orders.show');
+    Route::post('/orders/{order_number}/cancel', [AccountController::class, 'cancelOrder'])->name('orders.cancel');
 
+    // Hệ thống thông báo
+    Route::get('/notifications', [NotificationController::class, 'listNotifications'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
+});
+
+// --- 7. ADMIN / STAFF ROUTES ---
 Route::middleware(['auth', 'admin_staff'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
-    
-    // Product Management
-    Route::resource('books', BookController::class);
+
+    // Quản lý sản phẩm & danh mục
+    Route::resource('books', AdminBookController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('authors', AuthorController::class);
-    // User Management
+
+    // Quản lý đơn hàng (Admin/Staff)
+    Route::resource('orders', AdminOrderController::class)->only(['index', 'show']);
+    Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+    // Quản lý người dùng
     Route::resource('users', UserController::class);
 });

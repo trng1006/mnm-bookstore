@@ -87,10 +87,30 @@
             </a>
 
             <!-- Tài khoản -->
-            <a href="{{ route('login') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                <span class="text-[11px] font-ui font-semibold hidden md:block">Tài khoản</span>
-            </a>
+            @auth
+                <div class="relative group">
+                    <a href="{{ route('account.profile') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
+                        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <span class="text-[11px] font-ui font-semibold hidden md:block">{{ auth()->user()->name }}</span>
+                    </a>
+                    <!-- User Dropdown -->
+                    <div class="absolute right-0 mt-2 w-48 bg-white border border-brand-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                        @if(auth()->user()->isAdmin() || auth()->user()->isStaff())
+                            <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-brand-text hover:bg-brand-surface hover:text-brand-accent">Trang quản trị</a>
+                        @endif
+                        <a href="{{ route('account.profile') }}" class="block px-4 py-2 text-sm text-brand-text hover:bg-brand-surface hover:text-brand-accent">Hồ sơ cá nhân</a>
+                        <form method="POST" action="{{ route('logout') }}" class="block">
+                            @csrf
+                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-brand-text hover:bg-brand-surface hover:text-brand-accent">Đăng xuất</button>
+                        </form>
+                    </div>
+                </div>
+            @else
+                <a href="{{ route('login') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
+                    <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span class="text-[11px] font-ui font-semibold hidden md:block">Tài khoản</span>
+                </a>
+            @endauth
         </nav>
     </div>
 </header>

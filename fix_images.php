@@ -1,7 +1,11 @@
 <?php
+
+use App\Models\Book;
+use Illuminate\Contracts\Console\Kernel;
+
 require __DIR__.'/vendor/autoload.php';
 $app = require_once __DIR__.'/bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $images = [
     'nha-gia-kim' => 'https://covers.openlibrary.org/b/isbn/9780062315007-L.jpg',
@@ -11,15 +15,15 @@ $images = [
     'bong-hinh-cua-gio' => 'https://covers.openlibrary.org/b/isbn/9780143034902-L.jpg',
     'muon-kiep-nhan-sinh' => 'https://covers.openlibrary.org/b/isbn/9780735211292-L.jpg', // atomic habits cover as fallback
     'toi-ac-va-hinh-phat' => 'https://covers.openlibrary.org/b/isbn/9780140449136-L.jpg',
-    'chuyen-con-meo-day-hai-au-bay' => 'https://covers.openlibrary.org/b/isbn/9780143119395-L.jpg'
+    'chuyen-con-meo-day-hai-au-bay' => 'https://covers.openlibrary.org/b/isbn/9780143119395-L.jpg',
 ];
 
-foreach (\App\Models\Book::all() as $book) {
+foreach (Book::all() as $book) {
     if (isset($images[$book->slug])) {
         $book->cover_image = $images[$book->slug];
     } else {
         // Fallback random image
-        $book->cover_image = 'https://placehold.co/400x600/e2e8f0/1e293b?text=' . urlencode($book->title);
+        $book->cover_image = 'https://placehold.co/400x600/e2e8f0/1e293b?text='.urlencode($book->title);
     }
     $book->save();
 }

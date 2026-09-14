@@ -11,6 +11,7 @@ class AuthorController extends Controller
     public function index()
     {
         $authors = Author::paginate(10);
+
         return view('admin.authors.index', compact('authors'));
     }
 
@@ -29,6 +30,7 @@ class AuthorController extends Controller
         ]);
 
         Author::create($validated);
+
         return redirect()->route('admin.authors.index')->with('success', 'Tác giả đã được thêm.');
     }
 
@@ -41,18 +43,20 @@ class AuthorController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:authors,slug,' . $author->id,
+            'slug' => 'required|string|max:255|unique:authors,slug,'.$author->id,
             'bio' => 'nullable|string',
             'avatar' => 'nullable|string|max:255',
         ]);
 
         $author->update($validated);
+
         return redirect()->route('admin.authors.index')->with('success', 'Tác giả đã được cập nhật.');
     }
 
     public function destroy(Author $author)
     {
         $author->delete();
+
         return redirect()->route('admin.authors.index')->with('success', 'Tác giả đã bị xóa.');
     }
 }

@@ -13,6 +13,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::paginate(10);
+
         return view('admin.users.index', compact('users'));
     }
 
@@ -66,6 +67,7 @@ class UserController extends Controller
         }
 
         $user->delete();
+
         return redirect()->route('admin.users.index')->with('success', 'Tài khoản đã bị xóa.');
     }
 }

@@ -29,6 +29,15 @@
                 <a href="{{ route('admin.books.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('admin.books.*') ? 'bg-brand-accent text-white' : 'text-brand-muted hover:bg-brand-bg hover:text-brand-text' }}">
                     Sách
                 </a>
+                <a href="{{ route('admin.orders.index') }}" class="flex items-center justify-between px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('admin.orders.*') ? 'bg-brand-accent text-white' : 'text-brand-muted hover:bg-brand-bg hover:text-brand-text' }}">
+                    <span>Đơn hàng</span>
+                    @php $pendingCount = \App\Models\Order::where('status', 'pending')->count(); @endphp
+                    @if($pendingCount > 0)
+                        <span class="text-xs px-2 py-0.5 rounded-full {{ request()->routeIs('admin.orders.*') ? 'bg-white text-brand-accent' : 'bg-brand-accent text-white' }}">
+                            {{ $pendingCount }}
+                        </span>
+                    @endif
+                </a>
                 <a href="{{ route('admin.categories.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('admin.categories.*') ? 'bg-brand-accent text-white' : 'text-brand-muted hover:bg-brand-bg hover:text-brand-text' }}">
                     Danh mục
                 </a>

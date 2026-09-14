@@ -89,10 +89,12 @@
                         </div>
 
                         <!-- Actions -->
-                        <div class="grid grid-cols-2 gap-2 mt-auto">
-                            <button class="font-ui text-sm font-bold text-brand-text bg-brand-surface hover:bg-brand-border rounded-xl py-2.5 transition-colors">Thêm vào giỏ</button>
-                            <button class="font-ui text-sm font-bold text-white bg-brand-text hover:bg-brand-accent rounded-xl py-2.5 transition-colors shadow-sm">Mua ngay</button>
-                        </div>
+                        <form method="POST" action="{{ route('cart.add') }}" class="grid grid-cols-2 gap-2 mt-auto">
+                            @csrf
+                            <input type="hidden" name="book_id" value="{{ $book->id }}">
+                            <button type="submit" class="font-ui text-xs font-bold text-brand-text bg-brand-surface hover:bg-brand-border rounded-xl py-2.5 transition-colors cursor-pointer">Thêm vào giỏ</button>
+                            <button type="submit" name="buy_now" value="1" class="font-ui text-xs font-bold text-white bg-brand-text hover:bg-brand-accent rounded-xl py-2.5 transition-colors shadow-sm cursor-pointer">Mua ngay</button>
+                        </form>
                     </div>
                 </div>
             @endforeach

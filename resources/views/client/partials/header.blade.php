@@ -31,9 +31,9 @@
                     <!-- Right Content (Sub Categories) -->
                     <div class="w-2/3 p-6 grid grid-cols-2 gap-x-8 gap-y-6">
                         <div>
-                            <h5 class="font-ui font-bold text-brand-text mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+                            <div class="font-ui font-bold text-brand-text mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
                                 <span class="w-2 h-2 bg-brand-accent rounded-full"></span> Văn Học
-                            </h5>
+                            </div>
                             <ul class="space-y-2.5 text-sm font-ui text-brand-muted">
                                 <li><a href="#" class="hover:text-brand-accent transition-colors block">Tiểu thuyết</a></li>
                                 <li><a href="#" class="hover:text-brand-accent transition-colors block">Truyện ngắn - Tản văn</a></li>
@@ -43,9 +43,9 @@
                             </ul>
                         </div>
                         <div>
-                            <h5 class="font-ui font-bold text-brand-text mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+                            <div class="font-ui font-bold text-brand-text mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
                                 <span class="w-2 h-2 bg-[#9DB67A] rounded-full"></span> Kinh Tế
-                            </h5>
+                            </div>
                             <ul class="space-y-2.5 text-sm font-ui text-brand-muted">
                                 <li><a href="#" class="hover:text-brand-accent transition-colors block">Bài học kinh doanh</a></li>
                                 <li><a href="#" class="hover:text-brand-accent transition-colors block">Quản trị - Lãnh đạo</a></li>
@@ -62,7 +62,7 @@
         <!-- Center: Search Bar (AJAX) -->
         <div class="hidden lg:flex flex-1 max-w-2xl mx-8 relative group" id="ajax-search-container">
             <input type="text" id="ajax-search-input" placeholder="Tìm kiếm sách, tác giả..." autocomplete="off" class="w-full bg-white border border-brand-border rounded-full py-2 px-5 pr-12 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent font-ui text-brand-text transition-colors shadow-sm relative z-10">
-            <button class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-brand-accent text-white hover:bg-brand-accent-hover transition-colors rounded-full p-1.5 z-10 cursor-pointer">
+            <button aria-label="Tìm kiếm" class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-brand-accent text-white hover:bg-brand-accent-hover transition-colors rounded-full p-1.5 z-10 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
@@ -77,7 +77,7 @@
         <!-- Right: Utility Nav (Icons + Text) -->
         <nav class="flex items-center gap-4 md:gap-7">
             <!-- Tra cứu đơn hàng -->
-            <a href="{{ route('orders.tracking') }}" class="hidden sm:flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors" title="Tra cứu đơn hàng">
+            <a href="{{ route('orders.tracking') }}" class="hidden sm:flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors" title="Tra cứu đơn hàng" aria-label="Tra cứu đơn hàng">
                 <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                 <span class="text-[11px] font-ui font-semibold">Tra cứu</span>
             </a>
@@ -89,7 +89,7 @@
                     $unreadCount = $unreadNotifications->count();
                 @endphp
                 <div class="relative group">
-                    <a href="{{ route('account.notifications.index') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors relative">
+                    <a aria-label="Thông báo" href="{{ route('account.notifications.index') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors relative">
                         <div class="relative mb-1">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                             @if($unreadCount > 0)
@@ -116,7 +116,7 @@
                         <div class="max-h-64 overflow-y-auto divide-y divide-brand-border/60">
                             @forelse($unreadNotifications->take(4) as $notif)
                                 <div class="p-3 hover:bg-brand-surface/40 transition-colors text-xs">
-                                    <h5 class="font-bold text-brand-text line-clamp-1">{{ $notif->data['title'] ?? 'Thông báo đơn hàng' }}</h5>
+                                    <div class="font-bold text-brand-text line-clamp-1">{{ $notif->data['title'] ?? 'Thông báo đơn hàng' }}</div>
                                     <p class="text-brand-muted text-[11px] mt-0.5 line-clamp-2">{{ $notif->data['message'] ?? '' }}</p>
                                     <div class="flex justify-between items-center mt-2">
                                         <span class="text-[10px] text-brand-muted">{{ $notif->created_at->diffForHumans() }}</span>
@@ -143,7 +143,7 @@
                     </div>
                 </div>
             @else
-                <a href="{{ route('login') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
+                <a aria-label="Đăng nhập" href="{{ route('login') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
                     <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                     <span class="text-[11px] font-ui font-semibold hidden md:block">Thông báo</span>
                 </a>
@@ -153,7 +153,7 @@
             @php
                 $cartCount = array_sum(array_column(session('cart', []), 'quantity'));
             @endphp
-            <a href="{{ route('cart.index') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors relative group">
+            <a aria-label="Giỏ hàng" href="{{ route('cart.index') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors relative group">
                 <div class="relative mb-1">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     <span id="cart-badge" class="absolute -top-1.5 -right-2 bg-brand-accent text-white min-w-4 h-4 px-1 rounded-full text-[10px] flex items-center justify-center font-bold {{ $cartCount > 0 ? '' : 'hidden' }}">
@@ -166,7 +166,7 @@
             <!-- Tài khoản -->
             @auth
                 <div class="relative group">
-                    <a href="{{ route('account.profile') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
+                    <a aria-label="Tài khoản cá nhân" href="{{ route('account.profile') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
                         <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         <span class="text-[11px] font-ui font-semibold hidden md:block truncate max-w-[80px]">{{ auth()->user()->name }}</span>
                     </a>
@@ -194,7 +194,7 @@
                     </div>
                 </div>
             @else
-                <a href="{{ route('login') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
+                <a aria-label="Đăng nhập" href="{{ route('login') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
                     <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     <span class="text-[11px] font-ui font-semibold hidden md:block">Tài khoản</span>
                 </a>
@@ -252,7 +252,7 @@
                                                 ${book.cover_image ? `<img src="${book.cover_image}" class="w-full h-full object-cover">` : ''}
                                             </div>
                                             <div class="flex-1 min-w-0">
-                                                <h4 class="font-bold text-sm text-brand-text truncate">${book.title}</h4>
+                                                <div class="font-bold text-sm text-brand-text truncate">${book.title}</div>
                                                 <div class="text-[11px] text-brand-muted mt-0.5">${book.author}</div>
                                             </div>
                                             <div class="font-bold text-brand-accent text-sm whitespace-nowrap pl-2">

@@ -136,7 +136,7 @@
                     <div>
                         <label for="payment_status" class="block text-xs font-bold uppercase text-brand-muted mb-1.5">Cập nhật thanh toán (nếu cần)</label>
                         <div class="flex gap-2">
-                            <select name="payment_status" id="payment_status" class="flex-1 bg-brand-surface border border-brand-border rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-accent">
+                            <select aria-label="Trạng thái thanh toán" name="payment_status" id="payment_status" class="flex-1 bg-brand-surface border border-brand-border rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-accent">
                                 <option value="pending" {{ $order->payment_status === 'pending' ? 'selected' : '' }}>Chưa thanh toán</option>
                                 <option value="paid" {{ $order->payment_status === 'paid' ? 'selected' : '' }}>Đã thanh toán</option>
                             </select>

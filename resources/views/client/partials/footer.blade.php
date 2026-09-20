@@ -22,7 +22,7 @@
 
             <!-- Column 2: Khám phá -->
             <div>
-                <h4 class="font-display text-lg font-bold text-brand-text mb-6">Khám phá</h4>
+                <h3 class="font-display text-lg font-bold text-brand-text mb-6">Khám phá</h3>
                 <ul class="space-y-3 font-ui text-brand-muted">
                     <li><a href="{{ route('books.index') }}" class="hover:text-brand-accent transition-colors">Sách mới</a></li>
                     <li><a href="#" class="hover:text-brand-accent transition-colors">Bán chạy</a></li>
@@ -34,7 +34,7 @@
 
             <!-- Column 3: Hỗ trợ -->
             <div>
-                <h4 class="font-display text-lg font-bold text-brand-text mb-6">Hỗ trợ</h4>
+                <h3 class="font-display text-lg font-bold text-brand-text mb-6">Hỗ trợ</h3>
                 <ul class="space-y-3 font-ui text-brand-muted">
                     <li><a href="#" class="hover:text-brand-accent transition-colors">Liên hệ</a></li>
                     <li><a href="#" class="hover:text-brand-accent transition-colors">Vận chuyển</a></li>
@@ -46,7 +46,7 @@
 
             <!-- Column 4: Tài khoản -->
             <div>
-                <h4 class="font-display text-lg font-bold text-brand-text mb-6">Tài khoản</h4>
+                <h3 class="font-display text-lg font-bold text-brand-text mb-6">Tài khoản</h3>
                 <ul class="space-y-3 font-ui text-brand-muted">
                     <li><a href="{{ route('login') }}" class="hover:text-brand-accent transition-colors">Đăng nhập</a></li>
                     <li><a href="{{ route('login') }}" class="hover:text-brand-accent transition-colors">Đăng ký</a></li>

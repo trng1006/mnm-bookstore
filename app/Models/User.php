@@ -13,6 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Carbon;
 use Spatie\Permission\Traits\HasRoles;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
@@ -40,7 +41,7 @@ use OwenIt\Auditing\Auditable;
 class User extends Authenticatable implements AuditableContract
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasRoles, Auditable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, Auditable;
 
     /**
      * Get the attributes that should be cast.

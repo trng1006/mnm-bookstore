@@ -82,26 +82,21 @@ class OrderController extends Controller
             if (!in_array($newStatus, $allowedNext)) {
                 return redirect()->back()->with('error', "Không thể chuyển trạng thái từ '{$order->status_label}' sang '" . (new Order(['status' => $newStatus]))->status_label . "'.");
             }
-            
-            // Nếu xác nhận đơn hàng, kiểm tra trước khi vào transaction
-            if ($newStatus === Order::STATUS_CONFIRMED) {
-                foreach ($order->items as $item) {
-                    if ($item->book && $item->book->stock < $item->quantity) {
-                        return redirect()->back()->with('error', "Không thể xác nhận đơn hàng. Sản phẩm \"{$item->book->title}\" không đủ tồn kho (Còn: {$item->book->stock}).");
-                    }
-                }
-            }
         }
-
+            
         try {
             \Illuminate\Support\Facades\DB::transaction(function () use ($order, $oldStatus, $newStatus, $validated) {
                 if ($oldStatus !== $newStatus) {
                     // Trừ kho
                     if ($newStatus === Order::STATUS_CONFIRMED) {
                         foreach ($order->items as $item) {
-                            if ($item->book) {
-                                // Sử dụng lockForUpdate nếu cần thiết, nhưng decrement đã atomic
-                                $item->book->decrement('stock', $item->quantity);
+                            if ($item->book_id) {
+                                // Áp dụng row locking để chống Race Condition
+                                $book = \App\Models\Book::where('id', $item->book_id)->lockForUpdate()->first();
+                                if (!$book || $book->stock < $item->quantity) {
+                                    throw new \Exception("InsufficientStock: Sản phẩm \"{$item->book_title}\" không đủ tồn kho.");
+                                }
+                                $book->decrement('stock', $item->quantity);
                             }
                         }
                     }
@@ -146,6 +141,12 @@ class OrderController extends Controller
             
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Update Order Status Error: ' . $e->getMessage());
+            
+            if (str_starts_with($e->getMessage(), 'InsufficientStock:')) {
+                $errorMsg = str_replace('InsufficientStock: ', '', $e->getMessage());
+                return redirect()->back()->with('error', $errorMsg);
+            }
+            
             return redirect()->back()->with('error', 'Đã xảy ra lỗi trong quá trình xử lý đơn hàng. Vui lòng thử lại.');
         }
     }

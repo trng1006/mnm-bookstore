@@ -77,13 +77,6 @@ class CartController extends Controller
 
         // Trường hợp Mua ngay (Buy Now)
         if (! empty($validated['buy_now'])) {
-            if (! auth()->check()) {
-                // Yêu cầu bắt buộc đăng nhập để mua hàng
-                session()->put('url.intended', route('checkout.index'));
-
-                return redirect()->route('login')->with('info', 'Vui lòng đăng nhập để tiến hành đặt hàng.');
-            }
-
             return redirect()->route('checkout.index');
         }
 

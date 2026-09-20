@@ -30,6 +30,8 @@ class Flow2ShoppingAndOrderTest extends TestCase
     {
         parent::setUp();
 
+        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
+
         $this->customer = User::factory()->create([
             'name' => 'Nguyễn Khách Hàng',
             'email' => 'customer@test.com',
@@ -43,6 +45,7 @@ class Flow2ShoppingAndOrderTest extends TestCase
             'email' => 'admin@test.com',
             'role' => 'admin',
         ]);
+        $this->admin->assignRole('admin');
 
         $author = Author::create(['name' => 'Tác Giả A', 'slug' => 'tac-gia-a']);
         $category = Category::create(['name' => 'Văn Học', 'slug' => 'van-hoc']);
@@ -156,11 +159,11 @@ class Flow2ShoppingAndOrderTest extends TestCase
         $this->assertEquals(10000, $coupon['discount']); // 10% của 100.000
     }
 
-    /** 4. Bắt buộc đăng nhập khi Thanh toán (Checkout) */
-    public function test_guest_is_redirected_to_login_when_accessing_checkout(): void
+    /** 4. Khách vãng lai có thể vào trang thanh toán nhưng nếu giỏ hàng trống sẽ bị đẩy về giỏ hàng */
+    public function test_guest_is_redirected_to_cart_when_cart_empty(): void
     {
         $response = $this->get(route('checkout.index'));
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('cart.show'));
     }
 
     public function test_customer_can_checkout_successfully(): void

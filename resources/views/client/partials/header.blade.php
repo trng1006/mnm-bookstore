@@ -59,14 +59,19 @@
             </div>
         </div>
 
-        <!-- Center: Search Bar -->
-        <div class="hidden lg:flex flex-1 max-w-2xl mx-8 relative">
-            <input type="text" placeholder="Tìm kiếm sách, tác giả..." class="w-full bg-white border border-brand-border rounded-full py-2 px-5 pr-12 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent font-ui text-brand-text transition-colors shadow-sm">
-            <button class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-brand-accent text-white hover:bg-brand-accent-hover transition-colors rounded-full p-1.5">
+        <!-- Center: Search Bar (AJAX) -->
+        <div class="hidden lg:flex flex-1 max-w-2xl mx-8 relative group" id="ajax-search-container">
+            <input type="text" id="ajax-search-input" placeholder="Tìm kiếm sách, tác giả..." autocomplete="off" class="w-full bg-white border border-brand-border rounded-full py-2 px-5 pr-12 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent font-ui text-brand-text transition-colors shadow-sm relative z-10">
+            <button class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-brand-accent text-white hover:bg-brand-accent-hover transition-colors rounded-full p-1.5 z-10 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
             </button>
+
+            <!-- AJAX Results Dropdown -->
+            <div id="ajax-search-results" class="absolute top-[100%] left-0 right-0 bg-white border border-brand-border rounded-2xl shadow-lg mt-2 overflow-hidden z-50 hidden max-h-96 overflow-y-auto pt-1 font-ui">
+                <!-- Sẽ được fill bằng JS -->
+            </div>
         </div>
 
         <!-- Right: Utility Nav (Icons + Text) -->
@@ -205,18 +210,82 @@
         
         window.addEventListener('scroll', function() {
             if (window.scrollY > 20) {
-                // Trở về như cũ (Normal/Compact)
                 container.classList.remove('max-w-[1440px]', 'md:px-8', 'py-4');
                 container.classList.add('max-w-7xl', 'md:px-6', 'lg:px-8', 'py-2');
                 header.classList.add('shadow-md', 'bg-brand-bg/95', 'backdrop-blur-md');
                 header.classList.remove('bg-brand-bg', 'shadow-sm');
             } else {
-                // Kéo dãn sang 2 bên (Stretched)
                 container.classList.remove('max-w-7xl', 'md:px-6', 'lg:px-8', 'py-2');
                 container.classList.add('max-w-[1440px]', 'md:px-8', 'py-4');
                 header.classList.remove('shadow-md', 'bg-brand-bg/95', 'backdrop-blur-md');
                 header.classList.add('bg-brand-bg', 'shadow-sm');
             }
         });
+
+        // AJAX Search implementation
+        const searchInput = document.getElementById('ajax-search-input');
+        const searchResults = document.getElementById('ajax-search-results');
+        let debounceTimer;
+
+        if (searchInput && searchResults) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+                
+                if (query.length < 2) {
+                    searchResults.classList.add('hidden');
+                    return;
+                }
+                
+                debounceTimer = setTimeout(() => {
+                    fetch(`{{ route('books.ajaxSearch') }}?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            searchResults.innerHTML = '';
+                            
+                            if (data.books.length > 0) {
+                                let html = '<div class="flex flex-col">';
+                                data.books.forEach(book => {
+                                    html += `
+                                        <a href="${book.url}" class="flex items-center gap-3 p-3 hover:bg-brand-surface border-b border-brand-border/60 transition-colors last:border-0">
+                                            <div class="w-10 h-14 bg-brand-surface rounded overflow-hidden flex-shrink-0 border border-brand-border">
+                                                ${book.cover_image ? `<img src="${book.cover_image}" class="w-full h-full object-cover">` : ''}
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <h4 class="font-bold text-sm text-brand-text truncate">${book.title}</h4>
+                                                <div class="text-[11px] text-brand-muted mt-0.5">${book.author}</div>
+                                            </div>
+                                            <div class="font-bold text-brand-accent text-sm whitespace-nowrap pl-2">
+                                                ${book.price}
+                                            </div>
+                                        </a>
+                                    `;
+                                });
+                                html += `<div class="p-2 text-center border-t border-brand-border"><a href="{{ route('books.index') }}?search=${encodeURIComponent(query)}" class="text-xs font-bold text-brand-accent hover:underline">Xem tất cả kết quả &rarr;</a></div></div>`;
+                                searchResults.innerHTML = html;
+                                searchResults.classList.remove('hidden');
+                            } else {
+                                searchResults.innerHTML = '<div class="p-4 text-center text-sm text-brand-muted">Không tìm thấy sách nào phù hợp.</div>';
+                                searchResults.classList.remove('hidden');
+                            }
+                        })
+                        .catch(err => console.error(err));
+                }, 300); // 300ms debounce
+            });
+
+            // Close results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!document.getElementById('ajax-search-container').contains(e.target)) {
+                    searchResults.classList.add('hidden');
+                }
+            });
+            
+            // Re-open if input is clicked and has value
+            searchInput.addEventListener('click', function() {
+                if (this.value.trim().length >= 2 && searchResults.innerHTML !== '') {
+                    searchResults.classList.remove('hidden');
+                }
+            });
+        }
     });
 </script>

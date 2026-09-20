@@ -206,9 +206,9 @@ class Flow2ShoppingAndOrderTest extends TestCase
             'quantity' => 2,
         ]);
 
-        // Kiểm tra trừ kho
+        // Kiểm tra tồn kho không bị trừ khi mới đặt hàng (Pending)
         $this->book->refresh();
-        $this->assertEquals(48, $this->book->stock); // 50 - 2
+        $this->assertEquals(50, $this->book->stock); // Vẫn là 50
 
         // Kiểm tra gửi notification
         Notification::assertSentTo($this->customer, OrderPlacedNotification::class);
@@ -216,6 +216,65 @@ class Flow2ShoppingAndOrderTest extends TestCase
 
         // Chuyển hướng đến trang hoàn tất
         $response->assertRedirect(route('checkout.success', $order->order_number));
+    }
+
+    public function test_guest_can_checkout_successfully(): void
+    {
+        Notification::fake();
+
+        // Chuẩn bị giỏ hàng trong session
+        $this->withSession([
+            'cart' => [
+                $this->book->id => [
+                    'id' => $this->book->id,
+                    'title' => $this->book->title,
+                    'slug' => $this->book->slug,
+                    'cover_image' => null,
+                    'price' => 100000,
+                    'quantity' => 2,
+                    'stock' => 50,
+                ],
+            ],
+        ]);
+
+        $response = $this->post(route('checkout.process'), [
+            'customer_name' => 'Khách Vãng Lai',
+            'customer_email' => 'guest@test.com',
+            'customer_phone' => '0999999999',
+            'shipping_address' => '123 Đường Vãng Lai, Phường Vãng Lai',
+            'payment_method' => 'bank_transfer', // Khách phải dùng bank_transfer
+        ]);
+
+        $order = Order::where('customer_email', 'guest@test.com')->first();
+        $this->assertNotNull($order);
+        $this->assertNull($order->user_id);
+        $this->assertEquals('bank_transfer', $order->payment_method);
+        
+        $response->assertRedirect(route('checkout.success', $order->order_number));
+    }
+
+    /** 5. Admin xem danh sách đơn hàng */
+    public function test_admin_can_view_orders_list(): void
+    {
+        Order::create([
+            'order_number' => 'MNM-TEST-ORDER-1',
+            'user_id' => $this->customer->id,
+            'customer_name' => 'Khách Hàng',
+            'customer_email' => 'khach@test.com',
+            'customer_phone' => '0912345678',
+            'shipping_address' => 'Địa chỉ test',
+            'payment_method' => 'cod',
+            'status' => 'pending',
+            'payment_status' => 'pending',
+            'subtotal' => 100000,
+            'shipping_fee' => 30000,
+            'total_amount' => 130000,
+        ]);
+
+        $response = $this->actingAs($this->admin)->get(route('admin.orders.index'));
+        $response->assertStatus(200);
+        $response->assertSee('MNM-TEST-ORDER-1');
+        $response->assertSee('Chờ xác nhận');
     }
 
     /** 5. Tra cứu đơn hàng công khai */
@@ -264,16 +323,30 @@ class Flow2ShoppingAndOrderTest extends TestCase
             'shipping_fee' => 30000,
             'total_amount' => 130000,
         ]);
+        
+        \App\Models\OrderItem::create([
+            'order_id' => $order->id,
+            'book_id' => $this->book->id,
+            'book_title' => $this->book->title,
+            'price' => 100000,
+            'quantity' => 1,
+            'total' => 100000,
+        ]);
 
-        $response = $this->actingAs($this->admin)->patch(route('admin.orders.updateStatus', $order->id), [
-            'status' => 'shipping',
-            'payment_status' => 'paid',
+        // Cập nhật trạng thái từ pending -> confirmed
+        $response = $this->actingAs($this->admin)->from(route('admin.orders.show', $order->id))->patch(route('admin.orders.updateStatus', $order->id), [
+            'status' => 'confirmed',
+            'payment_status' => 'pending',
         ]);
 
         $response->assertRedirect(route('admin.orders.show', $order->id));
         $order->refresh();
-        $this->assertEquals('shipping', $order->status);
-        $this->assertEquals('paid', $order->payment_status);
+        $this->assertEquals('confirmed', $order->status);
+        $this->assertEquals('pending', $order->payment_status);
+        
+        // Kiểm tra đã trừ kho
+        $this->book->refresh();
+        $this->assertEquals(49, $this->book->stock); // 50 - 1
 
         Notification::assertSentTo($this->customer, OrderStatusUpdatedNotification::class);
     }

@@ -96,31 +96,60 @@
                 <form method="POST" action="{{ route('admin.orders.updateStatus', $order->id) }}" class="space-y-4">
                     @csrf
                     @method('PATCH')
+                    
+                    @php
+                        $allowedTransitions = \App\Models\Order::$allowedTransitions[$order->status] ?? [];
+                    @endphp
+
+                    @if(empty($allowedTransitions))
+                        <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500 text-center">
+                            Đơn hàng đã ở trạng thái cuối cùng, không thể thay đổi.
+                        </div>
+                    @else
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-brand-muted mb-1.5">Ghi chú xử lý (Tùy chọn)</label>
+                            <textarea name="note" rows="2" class="w-full bg-brand-surface border border-brand-border rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-accent" placeholder="Nhập ghi chú cho lần cập nhật này..."></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-brand-muted mb-2">Chuyển trạng thái sang</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                @foreach($allowedTransitions as $nextStatus)
+                                    @php
+                                        $tempOrder = new \App\Models\Order(['status' => $nextStatus]);
+                                        $btnClass = match($nextStatus) {
+                                            'cancelled', 'payment_failed' => 'bg-white text-red-600 border border-red-200 hover:bg-red-50',
+                                            'completed' => 'bg-emerald-600 text-white hover:bg-emerald-700',
+                                            default => 'bg-brand-accent text-white hover:bg-brand-accent-hover',
+                                        };
+                                    @endphp
+                                    <button type="submit" name="status" value="{{ $nextStatus }}" class="py-2 px-3 rounded-lg text-sm font-semibold transition-colors shadow-sm {{ $btnClass }}">
+                                        {{ $tempOrder->status_label }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <hr class="border-brand-border my-4">
 
                     <div>
-                        <label for="status" class="block text-xs font-bold uppercase text-brand-muted mb-1.5">Trạng thái đơn hàng</label>
-                        <select name="status" id="status" class="w-full bg-brand-surface border border-brand-border rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-accent">
-                            <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Chờ xác nhận</option>
-                            <option value="confirmed" {{ $order->status === 'confirmed' ? 'selected' : '' }}>Đã xác nhận</option>
-                            <option value="shipping" {{ $order->status === 'shipping' ? 'selected' : '' }}>Đang giao hàng</option>
-                            <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>Hoàn thành</option>
-                            <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Hủy đơn hàng</option>
-                        </select>
+                        <label for="payment_status" class="block text-xs font-bold uppercase text-brand-muted mb-1.5">Cập nhật thanh toán (nếu cần)</label>
+                        <div class="flex gap-2">
+                            <select name="payment_status" id="payment_status" class="flex-1 bg-brand-surface border border-brand-border rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-accent">
+                                <option value="pending" {{ $order->payment_status === 'pending' ? 'selected' : '' }}>Chưa thanh toán</option>
+                                <option value="paid" {{ $order->payment_status === 'paid' ? 'selected' : '' }}>Đã thanh toán</option>
+                            </select>
+                            @if(empty($allowedTransitions))
+                                <button type="submit" name="status" value="{{ $order->status }}" class="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-bold hover:bg-gray-900">
+                                    Lưu
+                                </button>
+                            @endif
+                        </div>
                     </div>
 
-                    <div>
-                        <label for="payment_status" class="block text-xs font-bold uppercase text-brand-muted mb-1.5">Trạng thái thanh toán</label>
-                        <select name="payment_status" id="payment_status" class="w-full bg-brand-surface border border-brand-border rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-accent">
-                            <option value="pending" {{ $order->payment_status === 'pending' ? 'selected' : '' }}>Chưa thanh toán</option>
-                            <option value="paid" {{ $order->payment_status === 'paid' ? 'selected' : '' }}>Đã thanh toán</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="w-full font-bold text-white bg-brand-accent hover:bg-brand-accent-hover py-2.5 rounded-lg text-sm transition-colors shadow-sm cursor-pointer">
-                        Cập nhật trạng thái
-                    </button>
-                    <p class="text-[11px] text-brand-muted text-center mt-1">
-                        * Thay đổi trạng thái sẽ tự động kích hoạt thông báo đến khách hàng.
+                    <p class="text-[11px] text-brand-muted text-center mt-3">
+                        * Thay đổi trạng thái sẽ lưu vào lịch sử và gửi thông báo.
                     </p>
                 </form>
             </div>

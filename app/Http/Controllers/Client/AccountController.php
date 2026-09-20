@@ -76,15 +76,16 @@ class AccountController extends Controller
             'status' => Order::STATUS_CANCELLED,
         ]);
 
-        // Hoàn lại số lượng tồn kho cho sách
-        /** @var OrderItem $item */
-        foreach ($order->items as $item) {
-            if ($item->book) {
-                $item->book->increment('stock', $item->quantity);
-            }
-        }
+        // Tạo lịch sử trạng thái
+        \App\Models\OrderStatusHistory::create([
+            'order_id' => $order->id,
+            'changed_by' => auth()->id(),
+            'from_status' => Order::STATUS_PENDING,
+            'to_status' => Order::STATUS_CANCELLED,
+            'note' => 'Khách hàng tự hủy đơn',
+        ]);
 
-        return back()->with('success', 'Đơn hàng #'.$order->order_number.' đã được hủy thành công.');
+        return back()->with('success', 'Hủy đơn hàng thành công.');
     }
 
     /**

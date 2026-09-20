@@ -118,13 +118,6 @@ class CheckoutController extends Controller
                     'quantity' => $item['quantity'],
                     'total' => $item['price'] * $item['quantity'],
                 ]);
-
-                // Giảm tồn kho
-                /** @var Book|null $book */
-                $book = Book::find($item['id']);
-                if ($book) {
-                    $book->decrement('stock', min($item['quantity'], $book->stock));
-                }
             }
 
             DB::commit();

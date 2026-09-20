@@ -14,7 +14,7 @@
         <!-- Filter/Sort -->
         <form method="GET" action="{{ route('books.index') }}" class="flex items-center gap-3">
             <label for="sort" class="font-ui text-brand-text font-medium">Sắp xếp theo:</label>
-            <select name="sort" id="sort" onchange="this.form.submit()" class="bg-white border border-brand-border text-brand-text text-sm rounded-lg focus:ring-brand-accent focus:border-brand-accent block p-2.5 outline-none font-ui shadow-sm cursor-pointer">
+            <select aria-label="Sắp xếp" name="sort" id="sort" onchange="this.form.submit()" class="bg-white border border-brand-border text-brand-text text-sm rounded-lg focus:ring-brand-accent focus:border-brand-accent block p-2.5 outline-none font-ui shadow-sm cursor-pointer">
                 <option value="newest" {{ $sort === 'newest' ? 'selected' : '' }}>Mới nhất</option>
                 <option value="popular" {{ $sort === 'popular' ? 'selected' : '' }}>Phổ biến nhất</option>
                 <option value="price_asc" {{ $sort === 'price_asc' ? 'selected' : '' }}>Giá: Thấp đến Cao</option>

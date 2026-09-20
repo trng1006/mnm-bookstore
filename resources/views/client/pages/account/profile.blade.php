@@ -59,6 +59,13 @@
                     Lưu thông tin
                 </button>
             </form>
+            
+            <!-- Menu links -->
+            <div class="mt-6 pt-6 border-t border-brand-border flex flex-col gap-2">
+                <a href="{{ route('account.profile') }}" class="w-full px-4 py-2 text-sm font-semibold text-brand-accent bg-brand-surface border border-brand-accent rounded-lg text-center">Hồ sơ & Đơn hàng</a>
+                <a href="{{ route('account.wishlist.index') }}" class="w-full px-4 py-2 text-sm font-semibold text-brand-text border border-brand-border rounded-lg text-center hover:bg-brand-surface">Danh sách Yêu thích</a>
+                <a href="{{ route('account.notifications.index') }}" class="w-full px-4 py-2 text-sm font-semibold text-brand-text border border-brand-border rounded-lg text-center hover:bg-brand-surface">Thông báo</a>
+            </div>
         </div>
 
         <!-- Right: Order History (8 cols) -->

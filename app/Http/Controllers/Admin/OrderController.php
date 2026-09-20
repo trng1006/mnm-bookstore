@@ -68,28 +68,86 @@ class OrderController extends Controller
     public function updateStatus(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'status' => 'required|in:pending,confirmed,shipping,completed,cancelled',
+            'status' => 'required|in:pending,confirmed,packing,shipping,completed,cancelled,payment_failed',
             'payment_status' => 'required|in:pending,paid',
+            'note' => 'nullable|string|max:1000'
         ]);
 
         $oldStatus = $order->status;
         $newStatus = $validated['status'];
 
-        $order->update([
-            'status' => $newStatus,
-            'payment_status' => $validated['payment_status'],
-        ]);
-
-        // Nếu trạng thái đơn thay đổi, gửi thông báo cho khách hàng
-        if ($oldStatus !== $newStatus && $order->user) {
-            try {
-                $order->user->notify(new OrderStatusUpdatedNotification($order, $oldStatus, $newStatus));
-            } catch (\Exception $e) {
-                Log::warning('OrderStatusUpdatedNotification Error: '.$e->getMessage());
+        if ($oldStatus !== $newStatus) {
+            // Kiểm tra transition hợp lệ
+            $allowedNext = Order::$allowedTransitions[$oldStatus] ?? [];
+            if (!in_array($newStatus, $allowedNext)) {
+                return redirect()->back()->with('error', "Không thể chuyển trạng thái từ '{$order->status_label}' sang '" . (new Order(['status' => $newStatus]))->status_label . "'.");
             }
         }
+            
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($order, $oldStatus, $newStatus, $validated) {
+                if ($oldStatus !== $newStatus) {
+                    // Trừ kho
+                    if ($newStatus === Order::STATUS_CONFIRMED) {
+                        foreach ($order->items as $item) {
+                            if ($item->book_id) {
+                                // Áp dụng row locking để chống Race Condition
+                                $book = \App\Models\Book::where('id', $item->book_id)->lockForUpdate()->first();
+                                if (!$book || $book->stock < $item->quantity) {
+                                    throw new \Exception("InsufficientStock: Sản phẩm \"{$item->book_title}\" không đủ tồn kho.");
+                                }
+                                $book->decrement('stock', $item->quantity);
+                            }
+                        }
+                    }
+                    
+                    // Xử lý hoàn tồn kho nếu hủy đơn hàng (không phải Pending)
+                    if (($newStatus === Order::STATUS_CANCELLED || $newStatus === Order::STATUS_PAYMENT_FAILED) && $oldStatus !== Order::STATUS_PENDING) {
+                        foreach ($order->items as $item) {
+                            if ($item->book) {
+                                $item->book->increment('stock', $item->quantity);
+                            }
+                        }
+                    }
+                }
 
-        return redirect()->route('admin.orders.show', $order->id)
-            ->with('success', 'Đã cập nhật trạng thái đơn hàng thành công!');
+                $order->update([
+                    'status' => $newStatus,
+                    'payment_status' => $validated['payment_status'],
+                ]);
+
+                if ($oldStatus !== $newStatus) {
+                    // Tạo lịch sử trạng thái
+                    \App\Models\OrderStatusHistory::create([
+                        'order_id' => $order->id,
+                        'changed_by' => auth()->id(),
+                        'from_status' => $oldStatus,
+                        'to_status' => $newStatus,
+                        'note' => $validated['note'] ?? null,
+                    ]);
+                }
+            });
+
+            // Gửi thông báo (ngoài transaction để không bị rollback nếu gửi mail lỗi hoặc block transaction quá lâu)
+            if ($oldStatus !== $newStatus && $order->user) {
+                try {
+                    $order->user->notify(new OrderStatusUpdatedNotification($order, $oldStatus, $newStatus));
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('OrderStatusUpdatedNotification Error: '.$e->getMessage());
+                }
+            }
+            
+            return redirect()->back()->with('success', 'Cập nhật trạng thái đơn hàng thành công.');
+            
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Update Order Status Error: ' . $e->getMessage());
+            
+            if (str_starts_with($e->getMessage(), 'InsufficientStock:')) {
+                $errorMsg = str_replace('InsufficientStock: ', '', $e->getMessage());
+                return redirect()->back()->with('error', $errorMsg);
+            }
+            
+            return redirect()->back()->with('error', 'Đã xảy ra lỗi trong quá trình xử lý đơn hàng. Vui lòng thử lại.');
+        }
     }
 }

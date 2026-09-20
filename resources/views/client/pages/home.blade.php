@@ -52,7 +52,7 @@
             @foreach($bestSellers as $book)
                 <div class="group block bg-white p-4 rounded-[var(--radius-card)] transition-all duration-500 hover:shadow-hover hover:-translate-y-2 border border-brand-border border-opacity-50 flex flex-col h-full">
                     
-                    <a href="{{ route('books.show', $book->slug) }}" class="block relative bg-brand-surface aspect-[3/4] mb-5 rounded-2xl flex items-center justify-center text-brand-muted text-sm overflow-hidden">
+                    <a aria-label="{{ $book->title }}" href="{{ route('books.show', $book->slug) }}" class="block relative bg-brand-surface aspect-[3/4] mb-5 rounded-2xl flex items-center justify-center text-brand-muted text-sm overflow-hidden">
                         @if($book->hasDiscount)
                             <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm {{ $book->tagColor }}">
                                 {{ $book->tagText }}
@@ -131,7 +131,7 @@
                 <!-- Filter/Sort -->
                 <div class="flex items-center gap-2">
                     <label for="sort" class="font-ui text-brand-text font-medium text-sm">Sắp xếp:</label>
-                    <select name="sort" id="sort-new-books" class="bg-white border border-brand-border text-brand-text text-sm rounded-lg focus:ring-brand-accent focus:border-brand-accent block p-2 outline-none font-ui shadow-sm cursor-pointer">
+                    <select aria-label="Sắp xếp" name="sort" id="sort-new-books" class="bg-white border border-brand-border text-brand-text text-sm rounded-lg focus:ring-brand-accent focus:border-brand-accent block p-2 outline-none font-ui shadow-sm cursor-pointer">
                         <option value="newest" {{ $sort === 'newest' ? 'selected' : '' }}>Mới nhất</option>
                         <option value="popular" {{ $sort === 'popular' ? 'selected' : '' }}>Phổ biến nhất</option>
                         <option value="price_asc" {{ $sort === 'price_asc' ? 'selected' : '' }}>Giá: Thấp đến Cao</option>

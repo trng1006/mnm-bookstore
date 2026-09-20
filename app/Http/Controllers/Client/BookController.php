@@ -125,4 +125,38 @@ class BookController extends Controller
 
         return back()->with('success', 'Cảm ơn bạn! Đánh giá của bạn đã được ghi nhận.');
     }
+
+    /**
+     * Tìm kiếm AJAX API
+     */
+    public function ajaxSearch(Request $request)
+    {
+        $keyword = $request->get('q');
+        
+        if (!$keyword || strlen($keyword) < 2) {
+            return response()->json(['books' => []]);
+        }
+
+        $books = Book::with('author')
+            ->where('title', 'like', '%' . $keyword . '%')
+            ->orWhereHas('author', function ($q) use ($keyword) {
+                $q->where('name', 'like', '%' . $keyword . '%');
+            })
+            ->select('id', 'title', 'slug', 'cover_image', 'price_current', 'author_id')
+            ->take(5)
+            ->get();
+
+        $formattedBooks = $books->map(function($book) {
+            return [
+                'title' => $book->title,
+                'slug' => $book->slug,
+                'url' => route('books.show', $book->slug),
+                'cover_image' => $book->cover_image ?? '',
+                'price' => number_format($book->price_current, 0, ',', '.') . ' ₫',
+                'author' => $book->author ? $book->author->name : 'Chưa rõ'
+            ];
+        });
+
+        return response()->json(['books' => $formattedBooks]);
+    }
 }

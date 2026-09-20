@@ -180,11 +180,21 @@
                         <button type="submit" name="buy_now" value="1" class="flex-1 font-ui font-bold text-white bg-brand-accent hover:bg-brand-accent-hover rounded-xl h-12 px-6 flex items-center justify-center gap-2 transition-all duration-300 shadow-soft hover:shadow-hover hover:-translate-y-0.5">
                             Mua ngay
                         </button>
+                        
+                        <!-- Wishlist Toggle -->
+                        @auth
+                            @php
+                                $isWished = \App\Models\Wishlist::where('user_id', auth()->id())->where('book_id', $book->id)->exists();
+                            @endphp
+                            <button type="button" id="wishlist-btn" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl border border-brand-border {{ $isWished ? 'bg-red-50' : 'bg-white' }} hover:bg-red-50 text-red-500 transition-colors shadow-sm" data-book-id="{{ $book->id }}">
+                                <svg class="w-6 h-6 {{ $isWished ? 'fill-current' : 'fill-none' }}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                            </button>
+                        @endauth
                     </div>
 
                     @guest
                     <p class="text-xs text-brand-muted font-ui mt-2">
-                        * Lưu ý: Bạn cần <a href="{{ route('login') }}" class="text-brand-accent underline">đăng nhập</a> trước khi tiến hành thanh toán đơn hàng.
+                        * Có thể thanh toán không cần đăng nhập (khách vãng lai). <a href="{{ route('login') }}" class="text-brand-accent underline">Đăng nhập</a> để sử dụng tính năng Yêu thích sách.
                     </p>
                     @endguest
                 </form>
@@ -400,6 +410,44 @@
         if (val > 1) {
             input.value = val - 1;
         }
+    }
+
+    const wishlistBtn = document.getElementById('wishlist-btn');
+    if (wishlistBtn) {
+        wishlistBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const bookId = this.getAttribute('data-book-id');
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
+            fetch("{{ route('account.wishlist.toggle') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": token,
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ book_id: bookId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const svg = this.querySelector('svg');
+                    if (data.is_wished) {
+                        this.classList.add('bg-red-50');
+                        this.classList.remove('bg-white');
+                        svg.classList.add('fill-current');
+                        svg.classList.remove('fill-none');
+                    } else {
+                        this.classList.remove('bg-red-50');
+                        this.classList.add('bg-white');
+                        svg.classList.remove('fill-current');
+                        svg.classList.add('fill-none');
+                    }
+                    // Optional: show a toast notification
+                }
+            })
+            .catch(err => console.error(err));
+        });
     }
 </script>
 @endpush

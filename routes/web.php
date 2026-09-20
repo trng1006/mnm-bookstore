@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'showHomePage'])->name('home');
 
 Route::get('/books', [BookController::class, 'index'])->name('books.index');
+Route::get('/books/search/ajax', [BookController::class, 'ajaxSearch'])->name('books.ajaxSearch');
 Route::get('/books/{slug}', [BookController::class, 'showBookDetails'])->name('books.show');
 Route::post('/books/{slug}/reviews', [BookController::class, 'storeReview'])->middleware('auth')->name('books.reviews.store');
 
@@ -53,8 +54,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'processLogout'])->name('logout');
 });
 
-// --- 5. CHECKOUT ROUTES (Bắt buộc đăng nhập để mua hàng) ---
-Route::middleware('auth')->prefix('checkout')->name('checkout.')->group(function () {
+// --- 5. CHECKOUT ROUTES (Hỗ trợ khách vãng lai) ---
+Route::prefix('checkout')->name('checkout.')->group(function () {
     Route::get('/', [CheckoutController::class, 'showCheckoutForm'])->name('index');
     Route::post('/', [CheckoutController::class, 'processCheckout'])->name('process');
     Route::get('/success/{order_number}', [CheckoutController::class, 'showOrderSuccess'])->name('success');
@@ -68,6 +69,10 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
     Route::get('/orders/{order_number}', [AccountController::class, 'showOrderDetail'])->name('orders.show');
     Route::post('/orders/{order_number}/cancel', [AccountController::class, 'cancelOrder'])->name('orders.cancel');
 
+    // Wishlist
+    Route::get('/wishlist', [\App\Http\Controllers\Client\WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/toggle', [\App\Http\Controllers\Client\WishlistController::class, 'toggle'])->name('wishlist.toggle');
+
     // Hệ thống thông báo
     Route::get('/notifications', [NotificationController::class, 'listNotifications'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
@@ -75,19 +80,30 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
 });
 
 // --- 7. ADMIN / STAFF ROUTES ---
-Route::middleware(['auth', 'admin_staff'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+// Sử dụng Spatie Role/Permission thay cho admin_staff thủ công
+Route::middleware(['auth', 'role:admin|staff'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->middleware('permission:view_dashboard')->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:view_dashboard')->name('dashboard.index');
 
     // Quản lý sản phẩm & danh mục
-    Route::resource('books', AdminBookController::class);
-    Route::resource('categories', CategoryController::class);
-    Route::resource('authors', AuthorController::class);
+    Route::middleware('permission:manage_books')->group(function() {
+        Route::resource('books', AdminBookController::class);
+        Route::resource('authors', AuthorController::class);
+    });
+    
+    Route::middleware('permission:manage_categories')->group(function() {
+        Route::resource('categories', CategoryController::class);
+    });
 
-    // Quản lý đơn hàng (Admin/Staff)
-    Route::resource('orders', AdminOrderController::class)->only(['index', 'show']);
-    Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    // Quản lý đơn hàng
+    Route::middleware('permission:manage_orders')->group(function() {
+        Route::resource('orders', AdminOrderController::class)->only(['index', 'show']);
+        Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    });
 
-    // Quản lý người dùng
-    Route::resource('users', UserController::class);
+    // Quản lý người dùng (Chỉ Admin)
+    Route::middleware('permission:manage_users')->group(function() {
+        Route::resource('users', UserController::class);
+    });
 });
+

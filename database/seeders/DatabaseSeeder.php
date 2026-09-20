@@ -337,5 +337,8 @@ class DatabaseSeeder extends Seeder
                 ]
             );
         }
+
+        // 7. Import raw Fahasa data
+        $this->call(FahasaBookSeeder::class);
     }
 }

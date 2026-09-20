@@ -33,7 +33,7 @@ class HomeController extends Controller
                     'isNew' => $book->is_new,
                     'hasDiscount' => $book->discount_percent > 0,
                     'tagText' => $book->discount_percent ? '-'.$book->discount_percent.'%' : '',
-                    'tagColor' => $book->discount_percent ? 'bg-brand-accent text-white' : '',
+                    'tagColor' => $book->discount_percent ? 'bg-red-700 text-white' : '',
                 ];
             });
 
@@ -77,7 +77,7 @@ class HomeController extends Controller
                     'isNew' => $book->is_new,
                     'hasDiscount' => false,
                     'tagText' => 'MỚI',
-                    'tagColor' => 'bg-[#9DB67A] text-white',
+                    'tagColor' => 'bg-[#6B8A44] text-white',
                 ];
             });
 

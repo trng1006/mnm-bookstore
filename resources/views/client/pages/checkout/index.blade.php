@@ -86,33 +86,32 @@
 
                     <div class="space-y-3 font-ui">
                         <!-- COD -->
-                        <label class="flex items-start gap-4 p-4 rounded-xl border border-brand-border cursor-pointer hover:border-brand-accent transition-colors bg-brand-surface/40 has-[:checked]:border-brand-accent has-[:checked]:bg-brand-accent/5">
-                            <input type="radio" name="payment_method" value="cod" checked class="mt-1 text-brand-accent focus:ring-brand-accent">
+                        <label class="flex items-start gap-4 p-4 rounded-xl border border-brand-border cursor-pointer hover:border-brand-accent transition-colors bg-brand-surface/40 has-[:checked]:border-brand-accent has-[:checked]:bg-brand-accent/5 {{ !auth()->check() ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <input type="radio" name="payment_method" value="cod" {{ auth()->check() ? 'checked' : 'disabled' }} class="mt-1 text-brand-accent focus:ring-brand-accent">
                             <div class="flex-1">
                                 <div class="font-bold text-sm text-brand-text flex items-center justify-between">
                                     <span>Thanh toán khi nhận hàng (COD)</span>
                                     <span class="text-xs font-normal text-brand-muted">Tiền mặt</span>
                                 </div>
-                                <p class="text-xs text-brand-muted mt-1">Bạn sẽ thanh toán tiền mặt trực tiếp cho nhân viên giao hàng khi nhận được sách.</p>
+                                <p class="text-xs text-brand-muted mt-1">
+                                    @if(auth()->check())
+                                        Bạn sẽ thanh toán tiền mặt trực tiếp cho nhân viên giao hàng khi nhận được sách.
+                                    @else
+                                        <span class="text-red-500 font-semibold">* Khách vãng lai không được sử dụng COD. Vui lòng đăng nhập hoặc chọn thanh toán trực tuyến.</span>
+                                    @endif
+                                </p>
                             </div>
                         </label>
 
                         <!-- Bank Transfer -->
                         <label class="flex items-start gap-4 p-4 rounded-xl border border-brand-border cursor-pointer hover:border-brand-accent transition-colors bg-brand-surface/40 has-[:checked]:border-brand-accent has-[:checked]:bg-brand-accent/5">
-                            <input type="radio" name="payment_method" value="bank_transfer" class="mt-1 text-brand-accent focus:ring-brand-accent">
+                            <input type="radio" name="payment_method" value="bank_transfer" {{ !auth()->check() ? 'checked' : '' }} class="mt-1 text-brand-accent focus:ring-brand-accent">
                             <div class="flex-1">
                                 <div class="font-bold text-sm text-brand-text flex items-center justify-between">
-                                    <span>Chuyển khoản ngân hàng (QR Pay / Banking)</span>
-                                    <span class="text-xs font-semibold text-brand-accent">Khuyên dùng</span>
+                                    <span>Thanh toán trực tuyến (VNPay / MoMo)</span>
+                                    <span class="text-xs font-semibold text-brand-accent">Bắt buộc cho khách vãng lai</span>
                                 </div>
-                                <p class="text-xs text-brand-muted mt-1">Chuyển khoản qua số tài khoản hoặc quét mã VietQR nhanh chóng.</p>
-                                
-                                <div class="mt-3 p-3 bg-white rounded-lg border border-brand-border text-xs space-y-1">
-                                    <div class="font-semibold text-brand-text">Ngân hàng MB Bank - Chi nhánh TP.HCM</div>
-                                    <div>Số tài khoản: <strong class="text-brand-accent font-mono text-sm">8888 6666 9999</strong></div>
-                                    <div>Chủ tài khoản: <strong>CÔNG TY CỔ PHẦN SÁCH MNM</strong></div>
-                                    <div class="text-[11px] text-brand-muted">* Nội dung CK: Số điện thoại đặt hàng của bạn</div>
-                                </div>
+                                <p class="text-xs text-brand-muted mt-1">Thanh toán qua cổng VNPay (hỗ trợ thẻ ATM, Visa/Master, mã QR).</p>
                             </div>
                         </label>
                     </div>

@@ -48,33 +48,35 @@
     @endif
 
     <!-- Status Timeline / Stepper -->
-    @if($order->status !== \App\Models\Order::STATUS_CANCELLED)
+    @if($order->status !== \App\Models\Order::STATUS_CANCELLED && $order->status !== \App\Models\Order::STATUS_PAYMENT_FAILED)
         @php
             $steps = [
                 'pending' => ['label' => 'Chờ xác nhận', 'icon' => '1'],
                 'confirmed' => ['label' => 'Đã xác nhận', 'icon' => '2'],
-                'shipping' => ['label' => 'Đang giao hàng', 'icon' => '3'],
+                'packing' => ['label' => 'Đang đóng gói', 'icon' => '3'],
+                'shipping' => ['label' => 'Đang giao hàng', 'icon' => '4'],
                 'completed' => ['label' => 'Hoàn thành', 'icon' => '✓'],
             ];
             $orderStatusWeights = [
                 'pending' => 1,
                 'confirmed' => 2,
-                'shipping' => 3,
-                'completed' => 4,
+                'packing' => 3,
+                'shipping' => 4,
+                'completed' => 5,
             ];
             $currentWeight = $orderStatusWeights[$order->status] ?? 1;
         @endphp
 
         <div class="bg-white rounded-[var(--radius-card)] border border-brand-border p-6 md:p-8 shadow-sm mb-8 font-ui">
             <h3 class="text-xs uppercase tracking-wider text-brand-muted font-bold mb-6">Tiến trình vận chuyển</h3>
-            <div class="relative max-w-3xl mx-auto">
+            <div class="relative max-w-4xl mx-auto">
                 <!-- Line aligned to dead-center of 40px circles (top-5 = 20px) -->
-                <div class="absolute left-[12.5%] right-[12.5%] top-5 -translate-y-1/2 h-1 bg-brand-surface z-0">
-                    <div class="h-full bg-brand-accent transition-all duration-700" style="width: {{ (($currentWeight - 1) / 3) * 100 }}%"></div>
+                <div class="absolute left-[10%] right-[10%] top-5 -translate-y-1/2 h-1 bg-brand-surface z-0">
+                    <div class="h-full bg-brand-accent transition-all duration-700" style="width: {{ (($currentWeight - 1) / 4) * 100 }}%"></div>
                 </div>
 
-                <!-- 4 Steps in Equal Columns -->
-                <div class="relative z-10 grid grid-cols-4">
+                <!-- 5 Steps in Equal Columns -->
+                <div class="relative z-10 grid grid-cols-5">
                     @foreach($steps as $key => $step)
                         @php
                             $stepWeight = $orderStatusWeights[$key];

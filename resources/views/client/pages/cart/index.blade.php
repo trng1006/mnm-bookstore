@@ -200,20 +200,15 @@
                     </div>
 
                     <!-- Checkout Button -->
-                    @auth
-                        <a href="{{ route('checkout.index') }}" class="w-full flex items-center justify-center gap-2 font-ui font-bold text-white bg-brand-accent hover:bg-brand-accent-hover rounded-xl py-3.5 shadow-soft hover:shadow-hover hover:-translate-y-0.5 transition-all duration-300 text-center">
-                            <span>Tiến hành thanh toán</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" onclick="sessionStorage.setItem('return_url', '{{ route('checkout.index') }}')" class="w-full flex items-center justify-center gap-2 font-ui font-bold text-white bg-brand-text hover:bg-brand-accent rounded-xl py-3.5 shadow-soft hover:shadow-hover hover:-translate-y-0.5 transition-all duration-300 text-center">
-                            <span>Đăng nhập để thanh toán</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-                        </a>
-                        <p class="text-[11px] text-center text-brand-muted mt-2">
-                            * Theo quy định, bạn cần đăng nhập tài khoản để đặt hàng.
-                        </p>
-                    @endauth
+                    <a href="{{ route('checkout.index') }}" class="w-full flex items-center justify-center gap-2 font-ui font-bold text-white bg-brand-accent hover:bg-brand-accent-hover rounded-xl py-3.5 shadow-soft hover:shadow-hover hover:-translate-y-0.5 transition-all duration-300 text-center">
+                        <span>Tiến hành thanh toán</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                    @guest
+                    <p class="text-[11px] text-center text-brand-muted mt-2">
+                        * Khách vãng lai bắt buộc phải thanh toán trực tuyến qua VNPay/MoMo.
+                    </p>
+                    @endguest
 
                     <div class="mt-6 pt-6 border-t border-brand-border space-y-2 text-xs text-brand-muted">
                         <div class="flex items-center gap-2">

@@ -13,6 +13,28 @@ class BookController extends Controller
     {
         $query = Book::with(['author', 'category']);
 
+        // Lọc theo danh mục
+        if ($request->filled('category')) {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('slug', $request->get('category'));
+            });
+        }
+
+        // Lọc theo từ khóa tìm kiếm
+        if ($request->filled('search')) {
+            $searchTerm = $request->get('search');
+            $searchSlug = \Illuminate\Support\Str::slug($searchTerm);
+            
+            $query->where(function ($q) use ($searchTerm, $searchSlug) {
+                $q->where('title', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('slug', 'like', '%' . $searchSlug . '%')
+                  ->orWhereHas('author', function ($q2) use ($searchTerm, $searchSlug) {
+                      $q2->where('name', 'like', '%' . $searchTerm . '%')
+                         ->orWhere('slug', 'like', '%' . $searchSlug . '%');
+                  });
+            });
+        }
+
         // Sắp xếp
         $sort = $request->get('sort', 'newest');
         switch ($sort) {
@@ -137,10 +159,16 @@ class BookController extends Controller
             return response()->json(['books' => []]);
         }
 
+        $searchSlug = \Illuminate\Support\Str::slug($keyword);
+        
         $books = Book::with('author')
-            ->where('title', 'like', '%' . $keyword . '%')
-            ->orWhereHas('author', function ($q) use ($keyword) {
-                $q->where('name', 'like', '%' . $keyword . '%');
+            ->where(function($q) use ($keyword, $searchSlug) {
+                $q->where('title', 'like', '%' . $keyword . '%')
+                  ->orWhere('slug', 'like', '%' . $searchSlug . '%')
+                  ->orWhereHas('author', function ($q2) use ($keyword, $searchSlug) {
+                      $q2->where('name', 'like', '%' . $keyword . '%')
+                         ->orWhere('slug', 'like', '%' . $searchSlug . '%');
+                  });
             })
             ->select('id', 'title', 'slug', 'cover_image', 'price_current', 'author_id')
             ->take(5)

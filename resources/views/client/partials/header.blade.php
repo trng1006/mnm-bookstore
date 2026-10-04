@@ -1,5 +1,5 @@
 <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-brand-bg border-b border-brand-border shadow-sm">
-    <div id="header-container" class="mx-auto flex justify-between items-center gap-4 transition-all duration-500 max-w-[1440px] px-4 md:px-8 py-4">
+    <div id="header-container" class="mx-auto flex flex-wrap lg:flex-nowrap justify-between items-center gap-4 transition-all duration-500 max-w-[1440px] px-4 md:px-8 py-3 lg:py-4">
         
         <!-- Left: Logo & Category Dropdown -->
         <div class="flex items-center gap-4 md:gap-8">
@@ -8,8 +8,8 @@
                 MNM Bookstore
             </a>
 
-            <!-- Category Dropdown Button (Mega Menu) -->
-            <div class="relative group hidden md:block h-full py-2">
+            <!-- Category Dropdown Button (Mega Menu) - Visible on mobile now! -->
+            <div class="relative group h-full py-2">
                 <button aria-label="Danh mục sản phẩm" class="flex items-center gap-1 text-brand-text hover:text-brand-accent transition-colors cursor-pointer">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
@@ -18,49 +18,23 @@
                 </button>
                 
                 <!-- Mega Menu Dropdown -->
-                <div class="absolute top-full left-0 w-[700px] bg-white border border-brand-border shadow-hover rounded-[var(--radius-card)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex z-50 overflow-hidden mt-1">
-                    <!-- Left Sidebar (Main Categories) -->
-                    <div class="w-1/3 bg-brand-surface p-4 flex flex-col gap-2">
-                        <div class="font-display font-bold text-brand-text mb-2 px-3 pb-2 border-b border-brand-border">Danh mục sản phẩm</div>
-                        <a href="#" class="px-3 py-2 rounded-xl bg-white font-ui text-brand-text font-bold shadow-sm">Sách Trong Nước</a>
-                        <a href="#" class="px-3 py-2 rounded-xl hover:bg-white font-ui text-brand-muted hover:text-brand-text transition-colors">Sách Ngoại Văn</a>
-                        <a href="#" class="px-3 py-2 rounded-xl hover:bg-white font-ui text-brand-muted hover:text-brand-text transition-colors">Văn phòng phẩm</a>
-                        <a href="#" class="px-3 py-2 rounded-xl hover:bg-white font-ui text-brand-muted hover:text-brand-text transition-colors">Đồ chơi</a>
-                    </div>
-                    
-                    <!-- Right Content (Sub Categories) -->
-                    <div class="w-2/3 p-6 grid grid-cols-2 gap-x-8 gap-y-6">
-                        <div>
-                            <div class="font-ui font-bold text-brand-text mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
-                                <span class="w-2 h-2 bg-brand-accent rounded-full"></span> Văn Học
-                            </div>
-                            <ul class="space-y-2.5 text-sm font-ui text-brand-muted">
-                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Tiểu thuyết</a></li>
-                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Truyện ngắn - Tản văn</a></li>
-                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Light Novel</a></li>
-                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Ngôn tình</a></li>
-                                <li><a href="#" class="text-brand-accent font-semibold text-xs mt-1 block">Xem tất cả</a></li>
-                            </ul>
+                <div class="absolute top-full left-0 w-[90vw] lg:w-[600px] bg-white border border-brand-border shadow-hover rounded-[var(--radius-card)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex z-50 overflow-hidden mt-1 p-4 lg:p-8">
+                    <div class="w-full">
+                        <div class="font-ui font-bold text-brand-text mb-6 text-sm uppercase tracking-wider flex items-center gap-2">
+                            <span class="w-2 h-2 bg-brand-accent rounded-full"></span> Danh mục sách
                         </div>
-                        <div>
-                            <div class="font-ui font-bold text-brand-text mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
-                                <span class="w-2 h-2 bg-[#9DB67A] rounded-full"></span> Kinh Tế
-                            </div>
-                            <ul class="space-y-2.5 text-sm font-ui text-brand-muted">
-                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Bài học kinh doanh</a></li>
-                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Quản trị - Lãnh đạo</a></li>
-                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Marketing - Bán hàng</a></li>
-                                <li><a href="#" class="hover:text-brand-accent transition-colors block">Phân tích kinh tế</a></li>
-                                <li><a href="#" class="text-brand-accent font-semibold text-xs mt-1 block">Xem tất cả</a></li>
-                            </ul>
-                        </div>
+                        <ul class="grid grid-cols-2 lg:grid-cols-3 gap-x-4 lg:gap-x-10 gap-y-4 text-sm font-ui text-brand-muted">
+                            @foreach($menuCategories as $category)
+                                <li><a href="{{ route('books.index', ['category' => $category->slug]) }}" class="hover:text-brand-accent hover:font-bold transition-all block truncate" title="{{ $category->name }}">{{ $category->name }}</a></li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Center: Search Bar (AJAX) -->
-        <div class="hidden lg:flex flex-1 max-w-2xl mx-8 relative group" id="ajax-search-container">
+        <div class="w-full lg:w-auto lg:flex-1 max-w-2xl lg:mx-8 order-last lg:order-none relative group" id="ajax-search-container">
             <input type="text" id="ajax-search-input" placeholder="Tìm kiếm sách, tác giả..." autocomplete="off" class="w-full bg-white border border-brand-border rounded-full py-2 px-5 pr-12 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent font-ui text-brand-text transition-colors shadow-sm relative z-10">
             <button aria-label="Tìm kiếm" class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-brand-accent text-white hover:bg-brand-accent-hover transition-colors rounded-full p-1.5 z-10 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -84,10 +58,6 @@
 
             <!-- Thông báo -->
             @auth
-                @php
-                    $unreadNotifications = auth()->user()->unreadNotifications;
-                    $unreadCount = $unreadNotifications->count();
-                @endphp
                 <div class="relative group">
                     <a aria-label="Thông báo" href="{{ route('account.notifications.index') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors relative">
                         <div class="relative mb-1">

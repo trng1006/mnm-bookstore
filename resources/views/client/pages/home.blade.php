@@ -15,7 +15,7 @@
             <a href="{{ route('books.index') }}" class="inline-flex items-center justify-center w-full sm:w-auto font-ui font-bold text-white bg-brand-text hover:bg-brand-accent transition-all duration-300 px-8 py-4 rounded-[var(--radius-button)] shadow-soft hover:shadow-hover hover:-translate-y-1">
                 Khám phá sách
             </a>
-            <a href="#" class="inline-flex items-center justify-center w-full sm:w-auto font-ui font-bold text-brand-text bg-brand-surface hover:bg-brand-border transition-all duration-300 px-8 py-4 rounded-[var(--radius-button)]">
+            <a href="{{ route('books.index', ['sort' => 'popular']) }}" class="inline-flex items-center justify-center w-full sm:w-auto font-ui font-bold text-brand-text bg-brand-surface hover:bg-brand-border transition-all duration-300 px-8 py-4 rounded-[var(--radius-button)]">
                 Xem sách bán chạy
             </a>
         </div>
@@ -26,8 +26,8 @@
         <h2 class="font-display text-2xl font-bold mb-8 text-center">Danh mục nổi bật</h2>
         <div class="flex flex-wrap justify-center gap-3 md:gap-4">
             @foreach($categories as $category)
-                <a href="#" class="px-6 py-3 bg-brand-surface hover:bg-brand-accent hover:text-white hover:shadow-soft transition-all duration-300 rounded-full font-ui font-semibold text-brand-text border border-brand-border">
-                    {{ $category }}
+                <a href="{{ route('books.index', ['category' => $category->slug]) }}" class="px-6 py-3 bg-brand-surface hover:bg-brand-accent hover:text-white hover:shadow-soft transition-all duration-300 rounded-full font-ui font-semibold text-brand-text border border-brand-border">
+                    {{ $category->name }}
                 </a>
             @endforeach
         </div>
@@ -52,21 +52,31 @@
             @foreach($bestSellers as $book)
                 <div class="group block bg-white p-4 rounded-[var(--radius-card)] transition-all duration-500 hover:shadow-hover hover:-translate-y-2 border border-brand-border border-opacity-50 flex flex-col h-full">
                     
-                    <a aria-label="{{ $book->title }}" href="{{ route('books.show', $book->slug) }}" class="block relative bg-brand-surface aspect-[3/4] mb-5 rounded-2xl flex items-center justify-center text-brand-muted text-sm overflow-hidden">
-                        @if($book->hasDiscount)
-                            <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm {{ $book->tagColor }}">
-                                {{ $book->tagText }}
-                            </span>
-                        @endif
-                        @if($book->cover)
-                            <img src="{{ $book->cover }}" alt="{{ $book->title }}" 
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                 onerror="this.outerHTML='<span class=\'font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700\'>Hình Bìa</span>'">
-                        @else
-                            <span class="font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700">Hình Bìa</span>
-                        @endif
-                        <div class="absolute inset-y-0 left-0 w-1 bg-gradient-to-r from-black/5 to-transparent"></div>
-                    </a>
+                    <div class="relative mb-5">
+                        <a aria-label="{{ $book->title }}" href="{{ route('books.show', $book->slug) }}" class="block relative bg-brand-surface aspect-[3/4] rounded-2xl flex items-center justify-center text-brand-muted text-sm overflow-hidden">
+                            @if($book->hasDiscount)
+                                <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm {{ $book->tagColor }}">
+                                    {{ $book->tagText }}
+                                </span>
+                            @endif
+                            @if($book->cover)
+                                <img src="{{ $book->cover }}" alt="{{ $book->title }}" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                     onerror="this.outerHTML='<span class=\'font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700\'>Hình Bìa</span>'">
+                            @else
+                                <span class="font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700">Hình Bìa</span>
+                            @endif
+                            <div class="absolute inset-y-0 left-0 w-1 bg-gradient-to-r from-black/5 to-transparent"></div>
+                        </a>
+                        <!-- Nút Yêu Thích -->
+                        <form method="POST" action="{{ route('account.wishlist.toggle') }}" class="absolute top-3 right-3 z-20 ajax-wishlist-form">
+                            @csrf
+                            <input type="hidden" name="book_id" value="{{ $book->id }}">
+                            <button type="submit" class="w-8 h-8 flex items-center justify-center bg-white/90 backdrop-blur rounded-full text-brand-muted hover:text-red-500 hover:bg-white transition-all shadow-sm" aria-label="Thêm vào yêu thích">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                            </button>
+                        </form>
+                    </div>
                     
                     <div class="px-2 flex flex-col flex-grow">
                         <a href="{{ route('books.show', $book->slug) }}">
@@ -112,7 +122,7 @@
                 <span class="font-ui font-bold tracking-widest text-brand-accent mb-4 block uppercase text-sm">Ưu đãi dành cho người yêu sách</span>
                 <h2 class="font-display text-3xl md:text-5xl font-bold mb-6 leading-tight">Giảm đến 20% cho một số tựa sách được chọn</h2>
                 <p class="font-ui text-brand-bg opacity-80 mb-8 text-lg">Khám phá các tựa sách kinh điển và best-seller với mức giá ưu đãi chưa từng có. Chương trình có hạn.</p>
-                <a href="#" class="inline-block font-ui font-bold text-brand-text bg-white hover:bg-brand-accent hover:text-white transition-all duration-300 px-8 py-4 rounded-full shadow-lg">
+                <a href="{{ route('books.index') }}" class="inline-block font-ui font-bold text-brand-text bg-white hover:bg-brand-accent hover:text-white transition-all duration-300 px-8 py-4 rounded-full shadow-lg">
                     Xem ưu đãi ngay
                 </a>
             </div>

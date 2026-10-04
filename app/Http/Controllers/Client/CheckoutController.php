@@ -107,8 +107,26 @@ class CheckoutController extends Controller
                 'coupon_code' => $totals['coupon']['code'] ?? null,
             ]);
 
-            // 2. Tạo chi tiết đơn hàng & trừ kho
+            // Increment coupon usage count
+            if (!empty($totals['coupon']['code'])) {
+                $coupon = Coupon::where('code', $totals['coupon']['code'])->first();
+                if ($coupon) {
+                    $coupon->increment('used_count');
+                }
+            }
+
+            // 2. Tạo chi tiết đơn hàng, verify kho & trừ kho
             foreach ($cart as $item) {
+                // Lấy sách và lock dòng để tránh race condition
+                $book = \App\Models\Book::where('id', $item['id'])->lockForUpdate()->first();
+                if (!$book || $book->stock < $item['quantity']) {
+                    DB::rollBack();
+                    return redirect()->route('cart.show')->with('error', 'Sách "' . $item['title'] . '" không đủ số lượng trong kho. Vui lòng kiểm tra lại!');
+                }
+
+                // Trừ tồn kho ngay lúc tạo đơn để tránh khách khác mua trùng
+                $book->decrement('stock', $item['quantity']);
+
                 OrderItem::create([
                     'order_id' => $order->id,
                     'book_id' => $item['id'],

@@ -9,8 +9,8 @@
   - `brand-accent-hover`: #C4674C
   - `brand-border`: #E2E8F0
 - **Typography:**
-  - Display Font: `Merriweather`, serif
-  - Body Font: `Inter`, sans-serif
+  - Display Font: `Lora`, serif
+  - Body Font: `Nunito`, sans-serif
 - **Layout & CSS Defaults:**
   - Header: Sticky top, expands to `1440px` on top, shrinks to `max-w-7xl` with `backdrop-blur` and border radius on scroll. Mega menu for categories.
   - Buttons: Rounded `var(--radius-button)`, uses `shadow-soft`, on hover shifts up with `shadow-hover`.

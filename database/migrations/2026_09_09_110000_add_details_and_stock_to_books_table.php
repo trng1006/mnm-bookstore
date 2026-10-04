@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('books', function (Blueprint $table) {
             $table->text('description')->nullable()->after('cover_image');
-            $table->integer('stock')->default(50)->after('price_old');
+            $table->unsignedInteger('stock')->default(50)->after('price_old');
             $table->string('publisher')->nullable()->after('description');
             $table->integer('pages')->nullable()->after('publisher');
             $table->integer('publication_year')->nullable()->after('pages');

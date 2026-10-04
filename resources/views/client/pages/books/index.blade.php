@@ -31,26 +31,36 @@
             <div class="group block bg-white p-4 rounded-[var(--radius-card)] transition-all duration-500 hover:shadow-hover hover:-translate-y-2 border border-brand-border border-opacity-50 flex flex-col h-full">
                 
                 <!-- Image -->
-                <a href="{{ route('books.show', $book->slug) }}" class="block relative bg-brand-surface aspect-[3/4] mb-5 rounded-2xl flex items-center justify-center text-brand-muted text-sm overflow-hidden">
-                    @if($book->is_new)
-                        <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm bg-[#9DB67A] text-white">
-                            MỚI
-                        </span>
-                    @elseif($book->discount_percent)
-                        <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm bg-brand-accent text-white">
-                            -{{ $book->discount_percent }}%
-                        </span>
-                    @endif
-                    
-                    @if($book->cover_image)
-                        <img src="{{ $book->cover_image }}" alt="{{ $book->title }}" 
-                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                             onerror="this.outerHTML='<span class=\'font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700\'>Hình Bìa</span>'">
-                    @else
-                        <span class="font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700">Hình Bìa</span>
-                    @endif
-                    <div class="absolute inset-y-0 left-0 w-1 bg-gradient-to-r from-black/5 to-transparent"></div>
-                </a>
+                <div class="relative mb-5">
+                    <a href="{{ route('books.show', $book->slug) }}" class="block relative bg-brand-surface aspect-[3/4] rounded-2xl flex items-center justify-center text-brand-muted text-sm overflow-hidden">
+                        @if($book->is_new)
+                            <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm bg-[#9DB67A] text-white">
+                                MỚI
+                            </span>
+                        @elseif($book->discount_percent)
+                            <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm bg-brand-accent text-white">
+                                -{{ $book->discount_percent }}%
+                            </span>
+                        @endif
+                        
+                        @if($book->cover_image)
+                            <img src="{{ $book->cover_image }}" alt="{{ $book->title }}" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                 onerror="this.outerHTML='<span class=\'font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700\'>Hình Bìa</span>'">
+                        @else
+                            <span class="font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700">Hình Bìa</span>
+                        @endif
+                        <div class="absolute inset-y-0 left-0 w-1 bg-gradient-to-r from-black/5 to-transparent"></div>
+                    </a>
+                    <!-- Nút Yêu Thích -->
+                    <form method="POST" action="{{ route('account.wishlist.toggle') }}" class="absolute top-3 right-3 z-20 ajax-wishlist-form">
+                        @csrf
+                        <input type="hidden" name="book_id" value="{{ $book->id }}">
+                        <button type="submit" class="w-8 h-8 flex items-center justify-center bg-white/90 backdrop-blur rounded-full text-brand-muted hover:text-red-500 hover:bg-white transition-all shadow-sm" aria-label="Thêm vào yêu thích">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                        </button>
+                    </form>
+                </div>
                 
                 <!-- Info -->
                 <div class="px-2 flex flex-col flex-grow">

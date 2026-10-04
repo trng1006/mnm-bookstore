@@ -31,37 +31,13 @@ git clone https://github.com/trng1006/mnm-bookstore.git
 cd mnm-bookstore
 ```
 
-**Bước 2: Cài đặt các thư viện (Dependencies)**
+**Bước 2: Chạy lệnh cài đặt tự động (Cực kỳ đơn giản)**
+Nhờ tính năng tự động hóa, bạn chỉ cần gõ **duy nhất 1 câu lệnh** sau đây. Lệnh này sẽ tự động tải thư viện, cấu hình môi trường (.env), tạo CSDL và bơm toàn bộ dữ liệu mẫu (Sách, tài khoản...) vào máy bạn:
 ```bash
-composer install
-npm install
+composer setup
 ```
 
-**Bước 3: Cấu hình môi trường (Environment)**
-Tạo file `.env` từ file mẫu:
-```bash
-cp .env.example .env
-```
-Khởi tạo App Key cho dự án Laravel:
-```bash
-php artisan key:generate
-```
-
-**Bước 4: Thiết lập Cơ sở dữ liệu (Database)**
-*Mặc định dự án sử dụng SQLite để dễ dàng chạy thử. Bạn cần tạo file database trống trước:*
-```bash
-# Dành cho macOS/Linux:
-touch database/database.sqlite
-
-# Dành cho Windows (Powershell):
-ni database/database.sqlite -ItemType File
-```
-Sau đó, chạy lệnh sau để tạo các bảng (tables) và nạp dữ liệu mẫu (sách, tác giả, danh mục):
-```bash
-php artisan migrate --seed
-```
-
-**Bước 5: Khởi chạy Server**
+**Bước 3: Khởi chạy Server**
 Mở 2 Terminal (cửa sổ lệnh) riêng biệt trong thư mục dự án và chạy đồng thời 2 lệnh sau:
 
 *Terminal 1 (Chạy Backend Laravel):*

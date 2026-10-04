@@ -15,7 +15,7 @@ class HomeController extends Controller
      */
     public function showHomePage(Request $request): View
     {
-        $categories = Category::pluck('name')->toArray();
+        $categories = Category::limit(10)->get();
 
         $bestSellers = Book::with('author', 'category')
             ->where('is_best_seller', true)

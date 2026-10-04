@@ -39,6 +39,10 @@ class Coupon extends Model
             return false;
         }
 
+        if (!is_null($this->usage_limit) && $this->used_count >= $this->usage_limit) {
+            return false;
+        }
+
         if ($subtotal < $this->min_order_value) {
             return false;
         }

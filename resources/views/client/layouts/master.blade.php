@@ -29,6 +29,111 @@
     <!-- Footer Partial -->
     @include('client.partials.footer')
 
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <script>
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form.action && form.action.includes('/cart/add')) {
+                // Check if user clicked "Mua ngay"
+                if (e.submitter && e.submitter.name === 'buy_now') {
+                    return; // Let standard submission happen for redirect to checkout
+                }
+
+                e.preventDefault();
+                const formData = new FormData(form);
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update cart counter
+                        const badge = document.getElementById('cart-badge');
+                        if (badge) {
+                            badge.textContent = data.totalItems;
+                            if (data.totalItems > 0) {
+                                badge.classList.remove('hidden');
+                            } else {
+                                badge.classList.add('hidden');
+                            }
+                        }
+                        showToast(data.message, 'success');
+                    } else {
+                        showToast(data.message || 'Có lỗi xảy ra!', 'error');
+                    }
+                })
+                .catch(err => {
+                    showToast('Lỗi kết nối. Vui lòng thử lại.', 'error');
+                });
+            } 
+            // Intercept Wishlist forms
+            else if (form.action && form.action.includes('/wishlist/toggle')) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => {
+                    if(res.status === 401) {
+                        window.location.href = '/login';
+                        return null;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.success) {
+                        showToast(data.message, 'success');
+                        // Toggle heart icon color locally if needed
+                        const icon = form.querySelector('svg');
+                        if (icon) {
+                            if (data.status === 'added') {
+                                icon.classList.add('text-red-500', 'fill-current');
+                            } else {
+                                icon.classList.remove('text-red-500', 'fill-current');
+                            }
+                        }
+                    } else if (data) {
+                        showToast(data.message || 'Có lỗi xảy ra!', 'error');
+                    }
+                })
+                .catch(err => {
+                    showToast('Vui lòng đăng nhập để thêm vào yêu thích.', 'error');
+                });
+            }
+        });
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            // Warm Humanist style
+            const bgColor = type === 'success' ? 'bg-emerald-500' : 'bg-red-500';
+            toast.className = `flex items-center px-4 py-3 rounded-xl shadow-soft text-white ${bgColor} font-ui text-sm transform transition-all duration-300 translate-y-full opacity-0`;
+            toast.innerHTML = message;
+            
+            container.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-y-full', 'opacity-0');
+            }, 10);
+            
+            // Remove after 3s
+            setTimeout(() => {
+                toast.classList.add('translate-y-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+
     @stack('scripts')
 </body>
 </html>

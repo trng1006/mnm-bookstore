@@ -20,10 +20,10 @@ return new class extends Migration
             $table->string('payment_method')->default('cod'); // 'cod', 'bank_transfer'
             $table->string('payment_status')->default('pending'); // 'pending', 'paid'
             $table->string('status')->default('pending'); // 'pending', 'confirmed', 'shipping', 'completed', 'cancelled'
-            $table->integer('subtotal');
-            $table->integer('shipping_fee')->default(30000);
-            $table->integer('discount_amount')->default(0);
-            $table->integer('total_amount');
+            $table->unsignedInteger('subtotal');
+            $table->unsignedInteger('shipping_fee')->default(30000);
+            $table->unsignedInteger('discount_amount')->default(0);
+            $table->unsignedInteger('total_amount');
             $table->string('coupon_code')->nullable();
             $table->timestamps();
         });
@@ -34,9 +34,9 @@ return new class extends Migration
             $table->foreignId('book_id')->nullable()->constrained()->nullOnDelete();
             $table->string('book_title');
             $table->string('book_cover')->nullable();
-            $table->integer('price');
-            $table->integer('quantity')->default(1);
-            $table->integer('total');
+            $table->unsignedInteger('price');
+            $table->unsignedInteger('quantity')->default(1);
+            $table->unsignedInteger('total');
             $table->timestamps();
         });
     }

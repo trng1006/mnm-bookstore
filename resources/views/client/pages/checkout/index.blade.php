@@ -175,7 +175,7 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="w-full font-ui font-bold text-white bg-brand-accent hover:bg-brand-accent-hover rounded-xl py-4 shadow-soft hover:shadow-hover hover:-translate-y-0.5 transition-all duration-300 text-center text-base cursor-pointer">
+                <button type="submit" onclick="this.disabled=true; this.innerHTML='Đang xử lý...'; this.form.submit();" class="w-full font-ui font-bold text-white bg-brand-accent hover:bg-brand-accent-hover rounded-xl py-4 shadow-soft hover:shadow-hover hover:-translate-y-0.5 transition-all duration-300 text-center text-base cursor-pointer">
                     Xác nhận đặt hàng
                 </button>
 

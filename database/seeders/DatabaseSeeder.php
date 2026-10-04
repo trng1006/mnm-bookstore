@@ -20,10 +20,10 @@ class DatabaseSeeder extends Seeder
     {
         // 0. Seed Users (Admin, Staff, Customer)
         $admin = User::firstOrCreate(
-            ['email' => 'admin@mnm.com'],
+            ['email' => 'admin@gmail.com'],
             [
                 'name' => 'Admin Quản Trị',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('123'),
                 'role' => 'admin',
                 'phone' => '0988888888',
                 'address' => 'Văn phòng MNM Bookstore, Tầng 5, 45 Lê Duẩn, Quận 1, TP.HCM',
@@ -31,10 +31,10 @@ class DatabaseSeeder extends Seeder
         );
 
         $staff = User::firstOrCreate(
-            ['email' => 'staff@mnm.com'],
+            ['email' => 'staff@gmail.com'],
             [
                 'name' => 'Nhân Viên Kho',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('123'),
                 'role' => 'staff',
                 'phone' => '0977777777',
                 'address' => 'Kho hàng MNM Bookstore, Thủ Đức, TP.HCM',
@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'customer@gmail.com'],
             [
                 'name' => 'Nguyễn Văn A',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('123'),
                 'role' => 'customer',
                 'phone' => '0901234567',
                 'address' => '123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',

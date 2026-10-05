@@ -5,8 +5,14 @@
 <div class="px-6 py-6 font-ui">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Tổng quan hệ thống</h1>
-        <div class="text-sm text-gray-500 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
-            Cập nhật lúc: {{ now()->format('d/m/Y H:i') }}
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.dashboard.export') }}" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Xuất Excel
+            </a>
+            <div class="text-sm text-gray-500 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
+                Cập nhật lúc: {{ now()->format('d/m/Y H:i') }}
+            </div>
         </div>
     </div>
 
@@ -62,42 +68,94 @@
         <!-- Chart Doanh thu -->
         <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
             <h2 class="text-lg font-bold text-gray-800 mb-4">Doanh thu 7 ngày qua</h2>
-            <div class="relative h-64 w-full flex items-end justify-between gap-2 pt-10">
-                @php $maxChartVal = !empty($chartData) && max($chartData) > 0 ? max($chartData) : 1; @endphp
-                
-                <!-- Y Axis Labels -->
-                <div class="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-gray-400 pb-8">
-                    <span>{{ number_format($maxChartVal, 0, ',', '.') }}</span>
-                    <span>{{ number_format($maxChartVal/2, 0, ',', '.') }}</span>
-                    <span>0</span>
-                </div>
-                
-                <!-- Grid Lines -->
-                <div class="absolute left-16 right-0 top-2 bottom-8 flex flex-col justify-between z-0">
-                    <div class="w-full border-t border-gray-100"></div>
-                    <div class="w-full border-t border-gray-100"></div>
-                    <div class="w-full border-t border-gray-200"></div>
-                </div>
-                
-                <!-- Bars -->
-                <div class="pl-16 w-full flex justify-between items-end h-full z-10 pb-8">
-                    @foreach($chartData as $index => $val)
-                        @php $percent = ($val / $maxChartVal) * 100; @endphp
-                        <div class="w-1/12 bg-blue-100 hover:bg-blue-200 rounded-t-sm relative group transition-all" style="height: {{ $percent }}%">
-                            <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">
-                                {{ number_format($val, 0, ',', '.') }} ₫
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-                
-                <!-- X Axis Labels -->
-                <div class="absolute left-16 right-0 bottom-0 flex justify-between text-xs text-gray-500 font-medium">
-                    @foreach($chartDates as $date)
-                        <div class="w-1/12 text-center">{{ $date }}</div>
-                    @endforeach
-                </div>
+            <div class="relative h-64 w-full mt-4">
+                <canvas id="revenueChart"></canvas>
             </div>
+        </div>
+
+        @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                
+                // Gradient for line chart
+                let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)'); // blue-500
+                gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+                
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: {!! json_encode($chartDates) !!},
+                        datasets: [{
+                            label: 'Doanh thu (₫)',
+                            data: {!! json_encode($chartData) !!},
+                            borderColor: '#3b82f6', // blue-500
+                            backgroundColor: gradient,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#3b82f6',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: '#f3f4f6', // gray-100
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    callback: function(value, index, values) {
+                                        if (value >= 1000000) return (value / 1000000) + ' Tr';
+                                        if (value >= 1000) return (value / 1000) + ' K';
+                                        return value;
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false,
+                                    drawBorder: false
+                                }
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index',
+                        },
+                    }
+                });
+            });
+        </script>
+        @endpush
         </div>
 
         <!-- Order Status -->

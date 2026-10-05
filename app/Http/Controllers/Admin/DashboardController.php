@@ -80,4 +80,46 @@ class DashboardController extends Controller
             'ordersByStatus', 'chartDates', 'chartData', 'topBooks', 'topCustomers'
         ));
     }
+
+    public function exportRevenueCsv()
+    {
+        $fileName = 'doanh_thu_'.date('Ymd_His').'.csv';
+        $orders = Order::where('status', 'completed')
+            ->with(['user', 'orderItems.book'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $headers = [
+            "Content-type"        => "text/csv; charset=UTF-8",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = ['Ma_Don_Hang', 'Khach_Hang', 'Ngay_Mua', 'Tong_Tien', 'Trang_Thai'];
+
+        $callback = function() use($orders, $columns) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for Excel to read UTF-8 properly
+            fputs($file, "\xEF\xBB\xBF");
+            
+            fputcsv($file, $columns);
+
+            foreach ($orders as $order) {
+                $row['Ma_Don_Hang']  = $order->order_number;
+                $row['Khach_Hang']    = $order->customer_info['name'] ?? 'Khách vãng lai';
+                $row['Ngay_Mua']      = $order->created_at->format('d/m/Y H:i');
+                $row['Tong_Tien']     = $order->total_amount;
+                $row['Trang_Thai']    = 'Hoàn thành';
+
+                fputcsv($file, array($row['Ma_Don_Hang'], $row['Khach_Hang'], $row['Ngay_Mua'], $row['Tong_Tien'], $row['Trang_Thai']));
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

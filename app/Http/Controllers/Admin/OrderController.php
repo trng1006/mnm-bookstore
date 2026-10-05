@@ -150,4 +150,15 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'Đã xảy ra lỗi trong quá trình xử lý đơn hàng. Vui lòng thử lại.');
         }
     }
+
+    public function exportPdf(Order $order)
+    {
+        $order->load(['user', 'items.book']);
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.orders.pdf', compact('order'));
+        // Dùng font mặc định có hỗ trợ tiếng Việt nếu được cấu hình, nếu không dùng DejaVu Sans
+        $pdf->setOption(['defaultFont' => 'DejaVu Sans']);
+        
+        return $pdf->download('HoaDon_' . $order->order_number . '.pdf');
+    }
 }

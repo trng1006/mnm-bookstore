@@ -79,4 +79,41 @@ class BookController extends Controller
 
         return redirect()->route('admin.books.index')->with('success', 'Sách đã bị xóa.');
     }
+
+    public function importCsv(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|mimes:csv,txt|max:2048'
+        ]);
+
+        if ($request->hasFile('csv_file')) {
+            $file = $request->file('csv_file');
+            $handle = fopen($file->getPathname(), "r");
+            $header = fgetcsv($handle, 1000, ","); // Bỏ qua dòng tiêu đề
+            
+            $count = 0;
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                // Cấu trúc dự kiến: title, slug, category_id, author_id, price_current, stock
+                if (count($data) >= 6) {
+                    Book::updateOrCreate(
+                        ['slug' => $data[1]],
+                        [
+                            'title' => $data[0],
+                            'category_id' => $data[2],
+                            'author_id' => $data[3],
+                            'price_current' => (int)$data[4],
+                            'stock' => (int)$data[5],
+                            'is_new' => true
+                        ]
+                    );
+                    $count++;
+                }
+            }
+            fclose($handle);
+            
+            return redirect()->route('admin.books.index')->with('success', "Nhập thành công $count cuốn sách từ file CSV.");
+        }
+        
+        return redirect()->route('admin.books.index')->with('error', 'Không tìm thấy file hợp lệ.');
+    }
 }

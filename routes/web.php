@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Client\AccountController;
 use App\Http\Controllers\Client\BookController;
 use App\Http\Controllers\Client\CartController;
+use App\Http\Controllers\Client\ChatController;
 use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\NotificationController;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 // --- 1. PUBLIC ROUTES (Khách xem sản phẩm) ---
 Route::get('/', [HomeController::class, 'showHomePage'])->name('home');
+Route::post('/chat/respond', [ChatController::class, 'respond'])->name('chat.respond');
 
 Route::get('/books', [BookController::class, 'index'])->name('books.index');
 Route::get('/books/search/ajax', [BookController::class, 'ajaxSearch'])->name('books.ajaxSearch');
@@ -84,9 +86,11 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
 Route::middleware(['auth', 'role:admin|staff'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->middleware('permission:view_dashboard')->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:view_dashboard')->name('dashboard.index');
+    Route::get('/dashboard/export', [DashboardController::class, 'exportRevenueCsv'])->middleware('permission:view_dashboard')->name('dashboard.export');
 
     // Quản lý sản phẩm & danh mục
     Route::middleware('permission:manage_books')->group(function() {
+        Route::post('books/import', [AdminBookController::class, 'importCsv'])->name('books.import');
         Route::resource('books', AdminBookController::class);
         Route::resource('authors', AuthorController::class);
     });
@@ -97,6 +101,7 @@ Route::middleware(['auth', 'role:admin|staff'])->prefix('admin')->name('admin.')
 
     // Quản lý đơn hàng
     Route::middleware('permission:manage_orders')->group(function() {
+        Route::get('orders/{order}/pdf', [AdminOrderController::class, 'exportPdf'])->name('orders.pdf');
         Route::resource('orders', AdminOrderController::class)->only(['index', 'show']);
         Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
     });

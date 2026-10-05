@@ -1,19 +1,21 @@
 # 📚 MNM Bookstore (Đồ án Lập trình Mã nguồn mở)
 
-MNM Bookstore là dự án website bán sách trực tuyến được xây dựng dựa trên framework Laravel. Đây là đồ án môn học "Lập trình mã nguồn mở", áp dụng các kiến thức về mô hình MVC, thao tác với Cơ sở dữ liệu và tương tác bất đồng bộ (AJAX).
+MNM Bookstore là dự án website bán sách trực tuyến được xây dựng dựa trên framework Laravel. Đây là đồ án môn học "Lập trình mã nguồn mở", áp dụng các kiến thức về mô hình MVC, thao tác với Cơ sở dữ liệu, quản lý phiên và tương tác bất đồng bộ (AJAX).
 
 ## 🚀 Công nghệ sử dụng
 - **Backend:** PHP 8.x, Laravel Framework, Eloquent ORM.
 - **Frontend:** HTML5, CSS3, Tailwind CSS (đóng gói qua Vite), JavaScript thuần (Vanilla JS / Fetch API).
-- **Database:** SQLite (Mặc định) / MySQL.
+- **Database:** SQLite (Mặc định cho Dev) / MySQL (Production).
 - **Kiến trúc:** Chuẩn mô hình MVC (Model - View - Controller).
 
 ## ✨ Chức năng nổi bật
-- Hiển thị danh sách Sách mới, Sách bán chạy.
-- Tính năng **Lọc và Sắp xếp** (theo giá, tên, độ phổ biến, mới nhất).
-- **Phân trang AJAX** (chuyển trang và lọc không cần tải lại toàn bộ trang, tối ưu trải nghiệm người dùng).
-- Dữ liệu mẫu phong phú (Được crawl trực tiếp từ các trang thương mại điện tử thực tế).
-- Giao diện Responsive chuẩn Web Design Guidelines tối giản, hiện đại.
+- **Giao diện chuẩn chỉ:** Thiết kế Responsive chuẩn Web Design Guidelines tối giản, hiện đại với phong cách Warm Humanist.
+- **Quản lý danh mục & Sản phẩm:** Hiển thị danh sách sách mới, sách bán chạy với dữ liệu mẫu phong phú.
+- **Tìm kiếm, Lọc và Phân trang:** 
+  - Tính năng lọc và sắp xếp theo giá, tên, độ phổ biến, mới nhất.
+  - Phân trang AJAX và tìm kiếm bằng Fetch API không cần tải lại toàn bộ trang, tối ưu trải nghiệm người dùng.
+- **Quy trình giỏ hàng & Thanh toán an toàn:** Hỗ trợ xử lý trừ kho an toàn (chống Race Condition).
+- **Xác thực & Phân quyền:** Quản lý quyền truy cập phân cấp (Admin, Staff, Customer).
 
 ## ⚙️ Yêu cầu hệ thống
 - PHP >= 8.1
@@ -50,7 +52,7 @@ php artisan serve
 npm run dev
 ```
 
-**Bước 6: Trải nghiệm**
+**Bước 4: Trải nghiệm**
 Mở trình duyệt và truy cập vào địa chỉ: **http://localhost:8000**
 
 ---

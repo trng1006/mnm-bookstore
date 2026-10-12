@@ -146,7 +146,25 @@ class CheckoutController extends Controller
             return back()->with('error', 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại!')->withInput();
         }
 
-        // 3. (Đã tắt tính năng gửi Email để tối ưu tốc độ đặt hàng cho đồ án)
+        // 3. Gửi thông báo đến Khách hàng & Staff/Admin
+        try {
+            // Cho khách hàng
+            if ($user) {
+                $user->notify(new OrderPlacedNotification($order, false));
+            } else {
+                \Illuminate\Support\Facades\Notification::route('mail', $order->customer_email)
+                    ->notify(new OrderPlacedNotification($order, false));
+            }
+
+            // Cho toàn bộ Staff và Admin
+            $staffAndAdmins = User::whereIn('role', ['admin', 'staff'])->get();
+            foreach ($staffAndAdmins as $staffUser) {
+                /** @var User $staffUser */
+                $staffUser->notify(new OrderPlacedNotification($order, true));
+            }
+        } catch (\Exception $e) {
+            Log::warning('Notification Error: '.$e->getMessage());
+        }
 
         // 4. Xóa session giỏ hàng
         session()->forget(['cart', 'coupon']);

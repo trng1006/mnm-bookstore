@@ -87,25 +87,18 @@ class OrderController extends Controller
         try {
             \Illuminate\Support\Facades\DB::transaction(function () use ($order, $oldStatus, $newStatus, $validated) {
                 if ($oldStatus !== $newStatus) {
-                    // Trừ kho
-                    if ($newStatus === Order::STATUS_CONFIRMED) {
+                    // Tồn kho đã được trừ ngay tại thời điểm khách đặt hàng (Checkout) để chống tranh chấp.
+                    // Hoàn lại tồn kho nếu đơn hàng bị hủy hoặc thanh toán thất bại (chỉ hoàn khi trạng thái cũ chưa bị hủy)
+                    $isCancellation = in_array($newStatus, [Order::STATUS_CANCELLED, Order::STATUS_PAYMENT_FAILED]);
+                    $wasNotCancelled = !in_array($oldStatus, [Order::STATUS_CANCELLED, Order::STATUS_PAYMENT_FAILED]);
+
+                    if ($isCancellation && $wasNotCancelled) {
                         foreach ($order->items as $item) {
                             if ($item->book_id) {
-                                // Áp dụng row locking để chống Race Condition
                                 $book = \App\Models\Book::where('id', $item->book_id)->lockForUpdate()->first();
-                                if (!$book || $book->stock < $item->quantity) {
-                                    throw new \Exception("InsufficientStock: Sản phẩm \"{$item->book_title}\" không đủ tồn kho.");
+                                if ($book) {
+                                    $book->increment('stock', $item->quantity);
                                 }
-                                $book->decrement('stock', $item->quantity);
-                            }
-                        }
-                    }
-                    
-                    // Xử lý hoàn tồn kho nếu hủy đơn hàng (không phải Pending)
-                    if (($newStatus === Order::STATUS_CANCELLED || $newStatus === Order::STATUS_PAYMENT_FAILED) && $oldStatus !== Order::STATUS_PENDING) {
-                        foreach ($order->items as $item) {
-                            if ($item->book) {
-                                $item->book->increment('stock', $item->quantity);
                             }
                         }
                     }

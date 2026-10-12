@@ -206,9 +206,9 @@ class Flow2ShoppingAndOrderTest extends TestCase
             'quantity' => 2,
         ]);
 
-        // Kiểm tra tồn kho không bị trừ khi mới đặt hàng (Pending)
+        // Kiểm tra tồn kho đã bị trừ ngay khi đặt hàng (Pending) để chống Race Condition
         $this->book->refresh();
-        $this->assertEquals(50, $this->book->stock); // Vẫn là 50
+        $this->assertEquals(48, $this->book->stock); // 50 - 2 = 48
 
         // Kiểm tra gửi notification
         Notification::assertSentTo($this->customer, OrderPlacedNotification::class);
@@ -344,10 +344,97 @@ class Flow2ShoppingAndOrderTest extends TestCase
         $this->assertEquals('confirmed', $order->status);
         $this->assertEquals('pending', $order->payment_status);
         
-        // Kiểm tra đã trừ kho
+        // Kiểm tra không bị trừ kho lần 2 khi Admin duyệt confirmed (vì đã trừ lúc đặt hàng)
         $this->book->refresh();
-        $this->assertEquals(49, $this->book->stock); // 50 - 1
+        $this->assertEquals(50, $this->book->stock);
 
         Notification::assertSentTo($this->customer, OrderStatusUpdatedNotification::class);
+    }
+
+    /** 7. Kiểm tra hoàn lại tồn kho khi Admin hủy đơn hàng */
+    public function test_admin_cancelling_order_restores_book_stock(): void
+    {
+        $order = Order::create([
+            'order_number' => 'MNM-TEST-CANCEL-1',
+            'user_id' => $this->customer->id,
+            'customer_name' => 'Khách Hàng',
+            'customer_email' => 'khach@test.com',
+            'customer_phone' => '0912345678',
+            'shipping_address' => 'Địa chỉ test',
+            'payment_method' => 'cod',
+            'status' => 'pending',
+            'payment_status' => 'pending',
+            'subtotal' => 100000,
+            'shipping_fee' => 30000,
+            'total_amount' => 130000,
+        ]);
+
+        \App\Models\OrderItem::create([
+            'order_id' => $order->id,
+            'book_id' => $this->book->id,
+            'book_title' => $this->book->title,
+            'price' => 100000,
+            'quantity' => 2,
+            'total' => 200000,
+        ]);
+
+        // Giả lập tồn kho đã bị trừ 2 cuốn khi checkout (50 -> 48)
+        $this->book->update(['stock' => 48]);
+
+        // Admin hủy đơn hàng
+        $response = $this->actingAs($this->admin)->from(route('admin.orders.show', $order->id))->patch(route('admin.orders.updateStatus', $order->id), [
+            'status' => 'cancelled',
+            'payment_status' => 'pending',
+        ]);
+
+        $response->assertRedirect(route('admin.orders.show', $order->id));
+        $order->refresh();
+        $this->assertEquals('cancelled', $order->status);
+
+        // Kiểm tra tồn kho được hoàn lại đầy đủ: 48 + 2 = 50
+        $this->book->refresh();
+        $this->assertEquals(50, $this->book->stock);
+    }
+
+    /** 8. Kiểm tra hoàn lại tồn kho khi Khách hàng tự hủy đơn hàng */
+    public function test_customer_cancelling_order_restores_book_stock(): void
+    {
+        $order = Order::create([
+            'order_number' => 'MNM-TEST-CUSTOMER-CANCEL',
+            'user_id' => $this->customer->id,
+            'customer_name' => $this->customer->name,
+            'customer_email' => $this->customer->email,
+            'customer_phone' => $this->customer->phone,
+            'shipping_address' => $this->customer->address,
+            'payment_method' => 'cod',
+            'status' => Order::STATUS_PENDING,
+            'payment_status' => 'pending',
+            'subtotal' => 100000,
+            'shipping_fee' => 30000,
+            'total_amount' => 130000,
+        ]);
+
+        \App\Models\OrderItem::create([
+            'order_id' => $order->id,
+            'book_id' => $this->book->id,
+            'book_title' => $this->book->title,
+            'price' => 100000,
+            'quantity' => 3,
+            'total' => 300000,
+        ]);
+
+        // Giả lập tồn kho đã bị trừ 3 cuốn khi checkout (50 -> 47)
+        $this->book->update(['stock' => 47]);
+
+        // Khách hàng tự hủy đơn
+        $response = $this->actingAs($this->customer)->post(route('account.orders.cancel', $order->order_number));
+        $response->assertSessionHas('success');
+
+        $order->refresh();
+        $this->assertEquals(Order::STATUS_CANCELLED, $order->status);
+
+        // Kiểm tra tồn kho được hoàn lại đầy đủ: 47 + 3 = 50
+        $this->book->refresh();
+        $this->assertEquals(50, $this->book->stock);
     }
 }

@@ -32,3 +32,5 @@ Thumbs.db
 /database/*.sqlite3
 /database/*.db
 /database/*.db3
+
+DEFENSE_GUIDE.md

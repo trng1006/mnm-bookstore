@@ -72,18 +72,30 @@ class AccountController extends Controller
             return back()->with('error', 'Đơn hàng này không thể hủy vì đã được xác nhận hoặc đang vận chuyển.');
         }
 
-        $order->update([
-            'status' => Order::STATUS_CANCELLED,
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($order) {
+            $order->update([
+                'status' => Order::STATUS_CANCELLED,
+            ]);
 
-        // Tạo lịch sử trạng thái
-        \App\Models\OrderStatusHistory::create([
-            'order_id' => $order->id,
-            'changed_by' => auth()->id(),
-            'from_status' => Order::STATUS_PENDING,
-            'to_status' => Order::STATUS_CANCELLED,
-            'note' => 'Khách hàng tự hủy đơn',
-        ]);
+            // Hoàn trả lại tồn kho khi khách hàng tự hủy đơn
+            foreach ($order->items as $item) {
+                if ($item->book_id) {
+                    $book = \App\Models\Book::where('id', $item->book_id)->lockForUpdate()->first();
+                    if ($book) {
+                        $book->increment('stock', $item->quantity);
+                    }
+                }
+            }
+
+            // Tạo lịch sử trạng thái
+            \App\Models\OrderStatusHistory::create([
+                'order_id' => $order->id,
+                'changed_by' => auth()->id(),
+                'from_status' => Order::STATUS_PENDING,
+                'to_status' => Order::STATUS_CANCELLED,
+                'note' => 'Khách hàng tự hủy đơn',
+            ]);
+        });
 
         return back()->with('success', 'Hủy đơn hàng thành công.');
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Review;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -55,7 +56,12 @@ class AccountController extends Controller
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-        return view('client.pages.account.order_detail', compact('order'));
+        $userReviews = Review::where('user_id', auth()->id())
+            ->whereIn('book_id', $order->items->pluck('book_id')->filter())
+            ->get()
+            ->keyBy('book_id');
+
+        return view('client.pages.account.order_detail', compact('order', 'userReviews'));
     }
 
     /**

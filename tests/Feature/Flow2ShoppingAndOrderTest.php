@@ -93,8 +93,48 @@ class Flow2ShoppingAndOrderTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    public function test_logged_in_user_can_submit_review(): void
+    public function test_user_cannot_submit_review_without_completed_order(): void
     {
+        $response = $this->actingAs($this->customer)
+            ->post(route('books.reviews.store', $this->book->slug), [
+                'rating' => 5,
+                'comment' => 'Cuốn sách này cực kỳ xuất sắc!',
+            ]);
+
+        $response->assertSessionHas('error');
+        $this->assertDatabaseMissing('reviews', [
+            'user_id' => $this->customer->id,
+            'book_id' => $this->book->id,
+        ]);
+    }
+
+    public function test_logged_in_user_can_submit_review_after_order_completed(): void
+    {
+        // Tạo đơn hàng đã hoàn tất cho khách hàng này
+        $order = Order::create([
+            'order_number' => 'MNM-TEST-REVIEW-COMPLETED',
+            'user_id' => $this->customer->id,
+            'customer_name' => $this->customer->name,
+            'customer_email' => $this->customer->email,
+            'customer_phone' => $this->customer->phone,
+            'shipping_address' => $this->customer->address,
+            'payment_method' => 'cod',
+            'status' => Order::STATUS_COMPLETED,
+            'payment_status' => 'paid',
+            'subtotal' => 100000,
+            'shipping_fee' => 0,
+            'total_amount' => 100000,
+        ]);
+
+        \App\Models\OrderItem::create([
+            'order_id' => $order->id,
+            'book_id' => $this->book->id,
+            'book_title' => $this->book->title,
+            'price' => 100000,
+            'quantity' => 1,
+            'total' => 100000,
+        ]);
+
         $response = $this->actingAs($this->customer)
             ->post(route('books.reviews.store', $this->book->slug), [
                 'rating' => 5,
@@ -111,6 +151,11 @@ class Flow2ShoppingAndOrderTest extends TestCase
         $this->book->refresh();
         $this->assertEquals(5.0, $this->book->rating);
         $this->assertEquals(1, $this->book->reviews_count);
+
+        // Xem trang chi tiết đơn hàng: thấy nút "Sửa đánh giá" cho quyển này
+        $viewResponse = $this->actingAs($this->customer)->get(route('account.orders.show', $order->order_number));
+        $viewResponse->assertStatus(200);
+        $viewResponse->assertSee('Sửa đánh giá');
     }
 
     /** 3. Giỏ hàng (Cart) */

@@ -116,11 +116,15 @@ class BookController extends Controller
             1 => $book->reviews->where('rating', 1)->count(),
         ];
 
-        return view('client.pages.books.show', compact('book', 'relatedBooks', 'ratingCounts'));
+        // Kiểm tra quyền đánh giá của user hiện tại
+        $userCanReview = auth()->check() ? auth()->user()->hasPurchasedBook($book->id) : false;
+        $userExistingReview = auth()->check() ? $book->reviews->where('user_id', auth()->id())->first() : null;
+
+        return view('client.pages.books.show', compact('book', 'relatedBooks', 'ratingCounts', 'userCanReview', 'userExistingReview'));
     }
 
     /**
-     * Lưu đánh giá / nhận xét của người dùng
+     * Lưu đánh giá / nhận xét của người dùng (Chỉ khi đã mua sách trong đơn hoàn tất)
      */
     public function storeReview(Request $request, string $slug)
     {
@@ -130,6 +134,18 @@ class BookController extends Controller
 
         /** @var Book $book */
         $book = Book::where('slug', $slug)->firstOrFail();
+
+        // Kiểm tra điều kiện: Mua xong (đơn hàng hoàn thành) mới được đánh giá
+        if (! auth()->user()->hasPurchasedBook($book->id)) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn chỉ có thể đánh giá sản phẩm sau khi đã mua và đơn hàng được giao thành công.',
+                ], 403);
+            }
+
+            return back()->with('error', 'Bạn chỉ có thể đánh giá sản phẩm sau khi đã mua và đơn hàng được giao thành công.');
+        }
 
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
@@ -152,6 +168,13 @@ class BookController extends Controller
         );
 
         $book->updateRatingStats();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cảm ơn bạn! Đánh giá của bạn đã được ghi nhận.',
+            ]);
+        }
 
         return back()->with('success', 'Cảm ơn bạn! Đánh giá của bạn đã được ghi nhận.');
     }

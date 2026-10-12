@@ -95,4 +95,20 @@ class User extends Authenticatable implements AuditableContract
     {
         return $this->role === 'customer';
     }
+
+    /**
+     * Kiểm tra người dùng đã mua cuốn sách và đơn hàng đã hoàn tất hay chưa
+     */
+    public function hasPurchasedBook(int $bookId): bool
+    {
+        return Order::where(function ($query) {
+                $query->where('user_id', $this->id)
+                    ->orWhere('customer_email', $this->email);
+            })
+            ->where('status', Order::STATUS_COMPLETED)
+            ->whereHas('items', function ($query) use ($bookId) {
+                $query->where('book_id', $bookId);
+            })
+            ->exists();
+    }
 }

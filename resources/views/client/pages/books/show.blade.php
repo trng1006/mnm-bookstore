@@ -247,50 +247,75 @@
 
         <!-- Write a Review Form -->
         <div class="mb-12 bg-brand-surface p-6 rounded-2xl border border-brand-border/80">
-            <h3 class="font-display text-lg font-bold text-brand-text mb-3">Viết đánh giá của bạn</h3>
+            <h3 class="font-display text-lg font-bold text-brand-text mb-3">
+                {{ $userExistingReview ? 'Cập nhật đánh giá của bạn' : 'Viết đánh giá của bạn' }}
+            </h3>
 
             @auth
-                <form method="POST" action="{{ route('books.reviews.store', $book->slug) }}">
-                    @csrf
-                    
-                    <!-- Rating Star Picker -->
-                    <div class="mb-4">
-                        <label class="block font-ui text-sm font-semibold text-brand-text mb-2">Đánh giá của bạn:</label>
-                        <div class="flex items-center gap-3">
-                            <div class="flex flex-row-reverse justify-end items-center gap-1 rating-group">
-                                @for($i = 5; $i >= 1; $i--)
-                                    <input type="radio" id="star{{ $i }}" name="rating" value="{{ $i }}" class="hidden peer" {{ old('rating') == $i ? 'checked' : ($i === 5 ? 'checked' : '') }}>
-                                    <label for="star{{ $i }}" class="cursor-pointer text-gray-300 peer-checked:text-yellow-400 hover:text-yellow-400 peer-hover:text-yellow-400 transition-colors">
-                                        <svg class="w-7 h-7 fill-current" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                        </svg>
-                                    </label>
-                                @endfor
+                @if($userCanReview)
+                    <div class="mb-4 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full text-xs font-ui font-semibold">
+                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        Xác nhận đã mua hàng tại MNM Bookstore
+                    </div>
+
+                    <form method="POST" action="{{ route('books.reviews.store', $book->slug) }}">
+                        @csrf
+                        
+                        <!-- Rating Star Picker -->
+                        <div class="mb-4">
+                            <label class="block font-ui text-sm font-semibold text-brand-text mb-2">Đánh giá của bạn:</label>
+                            <div class="flex items-center gap-3">
+                                <div class="flex flex-row-reverse justify-end items-center gap-1 rating-group">
+                                    @php
+                                        $currentRating = old('rating', $userExistingReview->rating ?? 5);
+                                    @endphp
+                                    @for($i = 5; $i >= 1; $i--)
+                                        <input type="radio" id="star{{ $i }}" name="rating" value="{{ $i }}" class="hidden peer" {{ (int) $currentRating === $i ? 'checked' : '' }}>
+                                        <label for="star{{ $i }}" class="cursor-pointer text-gray-300 peer-checked:text-yellow-400 hover:text-yellow-400 peer-hover:text-yellow-400 transition-colors">
+                                            <svg class="w-7 h-7 fill-current" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        </label>
+                                    @endfor
+                                </div>
+                                <span class="text-xs text-brand-muted font-ui">(Chọn từ 1 đến 5 sao)</span>
                             </div>
-                            <span class="text-xs text-brand-muted font-ui">(Chọn từ 1 đến 5 sao)</span>
+                            @error('rating')
+                                <p class="text-xs text-red-500 mt-1 font-ui">{{ $message }}</p>
+                            @enderror
                         </div>
-                        @error('rating')
-                            <p class="text-xs text-red-500 mt-1 font-ui">{{ $message }}</p>
-                        @enderror
-                    </div>
 
-                    <!-- Comment textarea -->
-                    <div class="mb-4">
-                        <label for="comment" class="block font-ui text-sm font-semibold text-brand-text mb-2">Nhận xét chi tiết:</label>
-                        <textarea id="comment" name="comment" rows="4" required placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..." class="w-full bg-white border border-brand-border rounded-xl p-3.5 text-sm font-ui focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-colors shadow-sm">{{ old('comment') }}</textarea>
-                        @error('comment')
-                            <p class="text-xs text-red-500 mt-1 font-ui">{{ $message }}</p>
-                        @enderror
-                    </div>
+                        <!-- Comment textarea -->
+                        <div class="mb-4">
+                            <label for="comment" class="block font-ui text-sm font-semibold text-brand-text mb-2">Nhận xét chi tiết:</label>
+                            <textarea id="comment" name="comment" rows="4" required placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..." class="w-full bg-white border border-brand-border rounded-xl p-3.5 text-sm font-ui focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-colors shadow-sm">{{ old('comment', $userExistingReview->comment ?? '') }}</textarea>
+                            @error('comment')
+                                <p class="text-xs text-red-500 mt-1 font-ui">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                    <button type="submit" class="font-ui font-bold text-white bg-brand-text hover:bg-brand-accent transition-colors rounded-xl px-6 py-2.5 shadow-sm text-sm">
-                        Gửi nhận xét
-                    </button>
-                </form>
+                        <button type="submit" class="font-ui font-bold text-white bg-brand-text hover:bg-brand-accent transition-colors rounded-xl px-6 py-2.5 shadow-sm text-sm">
+                            {{ $userExistingReview ? 'Cập nhật nhận xét' : 'Gửi nhận xét' }}
+                        </button>
+                    </form>
+                @else
+                    <div class="p-5 bg-amber-50/80 border border-amber-200/90 rounded-2xl flex items-start gap-3.5 text-amber-900 font-ui">
+                        <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div>
+                            <h4 class="font-bold text-sm text-amber-900">Chỉ độc giả đã mua sản phẩm mới có thể đánh giá</h4>
+                            <p class="text-xs text-amber-800 mt-1 leading-relaxed">
+                                Để đảm bảo tính xác thực và trải nghiệm thực tế cho cộng đồng, bạn chỉ có thể gửi đánh giá cho những cuốn sách đã được đặt mua và nhận hàng thành công tại MNM Bookstore. Bạn có thể đánh giá từng quyển trực tiếp trong trang <a href="{{ route('account.profile') }}" class="font-bold underline hover:text-amber-950">Chi tiết đơn hàng</a> sau khi nhận sách.
+                            </p>
+                        </div>
+                    </div>
+                @endif
             @else
-                <div class="flex items-center justify-between p-4 bg-white rounded-xl border border-brand-border">
-                    <p class="font-ui text-sm text-brand-muted">Vui lòng đăng nhập để viết đánh giá và nhận xét về cuốn sách này.</p>
-                    <a href="{{ route('login') }}" class="font-ui font-bold text-sm text-brand-accent hover:underline">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 bg-white rounded-xl border border-brand-border">
+                    <div>
+                        <h4 class="font-ui font-bold text-sm text-brand-text">Bạn đã đọc cuốn sách này?</h4>
+                        <p class="font-ui text-xs text-brand-muted mt-0.5">Vui lòng đăng nhập tài khoản đã mua sách để gửi nhận xét và đánh giá.</p>
+                    </div>
+                    <a href="{{ route('login') }}" class="font-ui font-bold text-xs text-white bg-brand-accent hover:bg-brand-accent-hover px-4 py-2.5 rounded-xl transition-colors shadow-sm whitespace-nowrap">
                         Đăng nhập ngay
                     </a>
                 </div>
@@ -307,7 +332,13 @@
                                 {{ strtoupper(substr($review->user->name ?? 'U', 0, 1)) }}
                             </div>
                             <div>
-                                <h4 class="font-ui font-bold text-brand-text text-sm">{{ $review->user->name ?? 'Người dùng' }}</h4>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-ui font-bold text-brand-text text-sm">{{ $review->user->name ?? 'Người dùng' }}</h4>
+                                    <span class="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                        Đã mua hàng
+                                    </span>
+                                </div>
                                 <span class="text-xs text-brand-muted font-ui">{{ $review->created_at->diffForHumans() }}</span>
                             </div>
                         </div>

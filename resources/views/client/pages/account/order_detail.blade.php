@@ -114,26 +114,76 @@
 
             <div class="divide-y divide-brand-border/60">
                 @foreach($order->items as $item)
-                    <div class="py-4 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-20 bg-brand-surface rounded-lg overflow-hidden flex-shrink-0 border border-brand-border flex items-center justify-center">
-                                @if(!empty($item->book_cover))
-                                    <img src="{{ $item->book_cover }}" alt="{{ $item->book_title }}" class="w-full h-full object-cover">
-                                @else
-                                    <span class="text-[10px] text-brand-muted">Bìa</span>
-                                @endif
-                            </div>
-                            <div>
-                                <h4 class="font-display font-bold text-sm text-brand-text">{{ $item->book_title }}</h4>
-                                <div class="text-xs text-brand-muted mt-1">
-                                    {{ number_format($item->price, 0, ',', '.') }} ₫ × {{ $item->quantity }}
+                    @php
+                        $book = $item->book;
+                        $review = ($book && isset($userReviews[$book->id])) ? $userReviews[$book->id] : null;
+                        $isOrderCompleted = ($order->status === \App\Models\Order::STATUS_COMPLETED);
+                    @endphp
+                    <div class="py-4">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex items-start gap-4 flex-1 min-w-0">
+                                <div class="w-14 h-20 bg-brand-surface rounded-lg overflow-hidden flex-shrink-0 border border-brand-border flex items-center justify-center">
+                                    @if(!empty($item->book_cover))
+                                        <img src="{{ $item->book_cover }}" alt="{{ $item->book_title }}" class="w-full h-full object-cover">
+                                    @else
+                                        <span class="text-[10px] text-brand-muted">Bìa</span>
+                                    @endif
                                 </div>
+                                <div class="min-w-0 flex-1">
+                                    @if($book)
+                                        <a href="{{ route('books.show', $book->slug) }}" class="font-display font-bold text-sm text-brand-text hover:text-brand-accent transition-colors line-clamp-2" title="{{ $item->book_title }}">
+                                            {{ $item->book_title }}
+                                        </a>
+                                    @else
+                                        <h4 class="font-display font-bold text-sm text-brand-text line-clamp-2">{{ $item->book_title }}</h4>
+                                    @endif
+                                    <div class="text-xs text-brand-muted mt-1">
+                                        {{ number_format($item->price, 0, ',', '.') }} ₫ × {{ $item->quantity }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="font-display font-bold text-sm text-brand-accent whitespace-nowrap pt-0.5">
+                                {{ number_format($item->total, 0, ',', '.') }} ₫
                             </div>
                         </div>
 
-                        <div class="font-display font-bold text-sm text-brand-accent whitespace-nowrap">
-                            {{ number_format($item->total, 0, ',', '.') }} ₫
-                        </div>
+                        <!-- Khu vực đánh giá cho từng quyển sách đã mua -->
+                        @if($isOrderCompleted && $book)
+                            <div class="mt-3.5 pl-18 flex flex-wrap items-center justify-between gap-2 bg-brand-surface/60 p-2.5 rounded-xl border border-brand-border/50">
+                                @if($review)
+                                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                                        <div class="flex text-yellow-400 text-xs">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <span>{{ $i <= $review->rating ? '★' : '☆' }}</span>
+                                            @endfor
+                                        </div>
+                                        <span class="text-xs font-semibold text-brand-text">{{ $review->rating }}/5</span>
+                                        <span class="text-xs text-brand-muted font-ui line-clamp-1 italic max-w-xs">“{{ $review->comment }}”</span>
+                                    </div>
+                                    <button type="button" 
+                                            onclick="openReviewModal('{{ $book->id }}', '{{ addslashes($book->title) }}', '{{ $item->book_cover ?? '' }}', '{{ $book->slug }}', {{ $review->rating }}, '{{ addslashes($review->comment) }}')"
+                                            class="inline-flex items-center gap-1 text-xs font-bold text-brand-accent hover:text-brand-accent-hover transition-colors cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/80">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                        Sửa đánh giá
+                                    </button>
+                                @else
+                                    <div class="text-xs text-brand-muted font-ui">
+                                        Bạn thấy cuốn sách này như thế nào?
+                                    </div>
+                                    <button type="button" 
+                                            onclick="openReviewModal('{{ $book->id }}', '{{ addslashes($book->title) }}', '{{ $item->book_cover ?? '' }}', '{{ $book->slug }}', 5, '')"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold font-ui text-white bg-brand-accent hover:bg-brand-accent-hover transition-all shadow-xs cursor-pointer">
+                                        <svg class="w-3.5 h-3.5 fill-current text-white" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                        Đánh giá sản phẩm
+                                    </button>
+                                @endif
+                            </div>
+                        @elseif(!$isOrderCompleted)
+                            <div class="mt-2 pl-18 text-[11px] text-brand-muted font-ui italic">
+                                * Có thể đánh giá sau khi nhận hàng thành công
+                            </div>
+                        @endif
                     </div>
                 @endforeach
             </div>
@@ -201,5 +251,164 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Đánh Giá Sách Từng Quyển -->
+<div id="review-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Backdrop mờ -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity" onclick="closeReviewModal()"></div>
+
+    <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-brand-border p-6 font-ui">
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-brand-border">
+                <div class="flex items-center gap-2">
+                    <span class="text-yellow-400 text-lg">★</span>
+                    <h3 class="font-display text-lg font-bold text-brand-text" id="modal-title">
+                        Đánh giá sản phẩm
+                    </h3>
+                </div>
+                <button type="button" onclick="closeReviewModal()" class="text-brand-muted hover:text-brand-text p-1.5 rounded-lg hover:bg-brand-surface transition-colors cursor-pointer" aria-label="Đóng">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Preview sách được đánh giá -->
+            <div class="flex items-center gap-3.5 my-5 p-3.5 bg-brand-surface rounded-xl border border-brand-border/60">
+                <div class="w-12 h-16 rounded-lg overflow-hidden bg-white flex-shrink-0 border border-brand-border flex items-center justify-center">
+                    <img id="modal-book-cover" src="" alt="" class="w-full h-full object-cover">
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h4 id="modal-book-title" class="font-display font-bold text-sm text-brand-text line-clamp-2"></h4>
+                    <p class="text-xs text-emerald-700 font-semibold mt-1 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        Đã mua trong đơn #{{ $order->order_number }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Form đánh giá -->
+            <form id="modal-review-form" method="POST" action="">
+                @csrf
+                
+                <!-- Chọn số sao (Interactive Star Picker) -->
+                <div class="mb-5 text-center">
+                    <label class="block text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Chất lượng sản phẩm:</label>
+                    <div class="flex justify-center items-center gap-1.5" id="star-picker-container">
+                        @for($i = 1; $i <= 5; $i++)
+                            <button type="button" data-star="{{ $i }}" class="star-btn p-1 text-gray-300 hover:scale-115 transition-transform text-3xl focus:outline-none cursor-pointer" aria-label="{{ $i }} sao">
+                                ★
+                            </button>
+                        @endfor
+                    </div>
+                    <input type="hidden" name="rating" id="modal-rating-input" value="5">
+                    <p id="star-label-text" class="text-xs text-brand-accent mt-2 font-bold font-ui">Cực kỳ hài lòng (5/5)</p>
+                </div>
+
+                <!-- Textarea nhận xét -->
+                <div class="mb-5">
+                    <label for="modal-comment" class="block text-xs font-semibold text-brand-text mb-1.5">Chia sẻ cảm nhận chi tiết:</label>
+                    <textarea id="modal-comment" name="comment" rows="4" required minlength="5" placeholder="Cuốn sách có đúng kỳ vọng của bạn không? Nội dung và chất lượng in ấn như thế nào..." class="w-full bg-brand-surface border border-brand-border rounded-xl p-3 text-sm focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-colors"></textarea>
+                    <p class="text-[11px] text-brand-muted mt-1 italic">* Tối thiểu 5 ký tự để giúp cộng đồng độc giả có thêm thông tin tham khảo hữu ích.</p>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-brand-border">
+                    <button type="button" onclick="closeReviewModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-brand-muted hover:bg-brand-surface transition-colors cursor-pointer">
+                        Hủy
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-brand-accent hover:bg-brand-accent-hover transition-colors shadow-soft cursor-pointer">
+                        Gửi đánh giá
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ratingLabels = {
+        1: 'Rất không hài lòng (1/5)',
+        2: 'Không hài lòng (2/5)',
+        3: 'Bình thường (3/5)',
+        4: 'Hài lòng (4/5)',
+        5: 'Cực kỳ hài lòng (5/5)'
+    };
+
+    function setStarRating(rating) {
+        const input = document.getElementById('modal-rating-input');
+        const label = document.getElementById('star-label-text');
+        input.value = rating;
+        label.textContent = ratingLabels[rating] || (rating + '/5');
+
+        const buttons = document.querySelectorAll('#star-picker-container .star-btn');
+        buttons.forEach((btn) => {
+            const star = parseInt(btn.getAttribute('data-star'));
+            if (star <= rating) {
+                btn.classList.remove('text-gray-300');
+                btn.classList.add('text-yellow-400');
+            } else {
+                btn.classList.remove('text-yellow-400');
+                btn.classList.add('text-gray-300');
+            }
+        });
+    }
+
+    document.querySelectorAll('#star-picker-container .star-btn').forEach((btn) => {
+        btn.addEventListener('click', function() {
+            const star = parseInt(this.getAttribute('data-star'));
+            setStarRating(star);
+        });
+        btn.addEventListener('mouseenter', function() {
+            const hoverStar = parseInt(this.getAttribute('data-star'));
+            const buttons = document.querySelectorAll('#star-picker-container .star-btn');
+            buttons.forEach((b) => {
+                const s = parseInt(b.getAttribute('data-star'));
+                if (s <= hoverStar) {
+                    b.classList.add('text-yellow-400');
+                    b.classList.remove('text-gray-300');
+                } else {
+                    b.classList.remove('text-yellow-400');
+                    b.classList.add('text-gray-300');
+                }
+            });
+            const label = document.getElementById('star-label-text');
+            label.textContent = ratingLabels[hoverStar] || '';
+        });
+    });
+
+    document.getElementById('star-picker-container')?.addEventListener('mouseleave', function() {
+        const input = document.getElementById('modal-rating-input');
+        setStarRating(parseInt(input.value) || 5);
+    });
+
+    function openReviewModal(bookId, bookTitle, bookCover, bookSlug, rating, comment) {
+        const modal = document.getElementById('review-modal');
+        const form = document.getElementById('modal-review-form');
+        const titleEl = document.getElementById('modal-book-title');
+        const coverEl = document.getElementById('modal-book-cover');
+        const commentEl = document.getElementById('modal-comment');
+
+        titleEl.textContent = bookTitle;
+        coverEl.src = bookCover || 'https://placehold.co/100x150?text=Bìa';
+        commentEl.value = comment || '';
+
+        form.action = '/books/' + bookSlug + '/reviews';
+        setStarRating(rating || 5);
+
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+    }
+
+    function closeReviewModal() {
+        const modal = document.getElementById('review-modal');
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeReviewModal();
+        }
+    });
+</script>
 @endsection
 

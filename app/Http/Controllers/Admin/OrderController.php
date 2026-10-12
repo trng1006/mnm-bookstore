@@ -154,4 +154,53 @@ class OrderController extends Controller
         
         return $pdf->download('HoaDon_' . $order->order_number . '.pdf');
     }
+
+    /**
+     * Tìm kiếm nhanh đơn hàng qua AJAX (Autocomplete / Live Search)
+     */
+    public function ajaxSearch(Request $request)
+    {
+        $keyword = trim($request->get('q') ?? $request->get('search') ?? '');
+        $status = $request->get('status', 'all');
+
+        if (empty($keyword) || mb_strlen($keyword) < 2) {
+            return response()->json(['orders' => []]);
+        }
+
+        $query = Order::with('items')->latest();
+
+        if ($status && $status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        $query->where(function ($q) use ($keyword) {
+            $q->where('order_number', 'like', "%{$keyword}%")
+                ->orWhere('customer_name', 'like', "%{$keyword}%")
+                ->orWhere('customer_phone', 'like', "%{$keyword}%")
+                ->orWhere('customer_email', 'like', "%{$keyword}%");
+        });
+
+        $orders = $query->take(6)->get();
+
+        $formattedOrders = $orders->map(function ($order) {
+            return [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'customer_name' => $order->customer_name,
+                'customer_phone' => $order->customer_phone,
+                'customer_email' => $order->customer_email,
+                'total_amount' => number_format($order->total_amount, 0, ',', '.') . ' ₫',
+                'items_count' => $order->items->count(),
+                'status' => $order->status,
+                'status_label' => $order->status_label,
+                'status_badge_class' => $order->status_badge_class,
+                'payment_status_label' => $order->payment_status_label,
+                'payment_status_badge_class' => $order->payment_status_badge_class,
+                'created_at' => $order->created_at->format('d/m/Y H:i'),
+                'url' => route('admin.orders.show', $order->id),
+            ];
+        });
+
+        return response()->json(['orders' => $formattedOrders]);
+    }
 }

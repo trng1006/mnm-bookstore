@@ -101,6 +101,7 @@ Route::middleware(['auth', 'role:admin|staff'])->prefix('admin')->name('admin.')
 
     // Quản lý đơn hàng
     Route::middleware('permission:manage_orders')->group(function() {
+        Route::get('orders/search/ajax', [AdminOrderController::class, 'ajaxSearch'])->name('orders.ajaxSearch');
         Route::get('orders/{order}/pdf', [AdminOrderController::class, 'exportPdf'])->name('orders.pdf');
         Route::resource('orders', AdminOrderController::class)->only(['index', 'show']);
         Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');

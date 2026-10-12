@@ -482,4 +482,43 @@ class Flow2ShoppingAndOrderTest extends TestCase
         $this->book->refresh();
         $this->assertEquals(50, $this->book->stock);
     }
+
+    /** 8. Tìm kiếm nhanh đơn hàng qua AJAX trong Admin */
+    public function test_admin_can_quick_search_orders_via_ajax(): void
+    {
+        $order = Order::create([
+            'order_number' => 'MNM-TEST-AJAX-SEARCH-999',
+            'user_id' => $this->customer->id,
+            'customer_name' => 'Trần Văn Demo',
+            'customer_email' => 'demo_ajax@test.com',
+            'customer_phone' => '0988776655',
+            'shipping_address' => '789 Đường Test, Q3, TP.HCM',
+            'payment_method' => 'cod',
+            'status' => Order::STATUS_PENDING,
+            'payment_status' => 'pending',
+            'subtotal' => 200000,
+            'shipping_fee' => 0,
+            'total_amount' => 200000,
+        ]);
+
+        // 1. Tìm theo mã đơn hàng
+        $response = $this->actingAs($this->admin)->getJson(route('admin.orders.ajaxSearch', ['q' => 'SEARCH-999']));
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['order_number' => 'MNM-TEST-AJAX-SEARCH-999']);
+        $response->assertJsonFragment(['customer_name' => 'Trần Văn Demo']);
+
+        // 2. Tìm theo số điện thoại
+        $responsePhone = $this->actingAs($this->admin)->getJson(route('admin.orders.ajaxSearch', ['q' => '098877']));
+        $responsePhone->assertStatus(200);
+        $responsePhone->assertJsonFragment(['order_number' => 'MNM-TEST-AJAX-SEARCH-999']);
+
+        // 3. Từ khóa dưới 2 ký tự trả về mảng rỗng
+        $responseShort = $this->actingAs($this->admin)->getJson(route('admin.orders.ajaxSearch', ['q' => 'M']));
+        $responseShort->assertStatus(200);
+        $responseShort->assertExactJson(['orders' => []]);
+
+        // 4. Khách hàng thông thường không có quyền truy cập
+        $responseForbidden = $this->actingAs($this->customer)->getJson(route('admin.orders.ajaxSearch', ['q' => 'SEARCH-999']));
+        $responseForbidden->assertStatus(403);
+    }
 }

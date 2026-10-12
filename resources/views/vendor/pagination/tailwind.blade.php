@@ -1,6 +1,6 @@
 @if ($paginator->hasPages())
     <div class="flex items-center justify-center w-full my-8">
-        <div class="inline-flex items-center gap-1 bg-white rounded-full shadow-soft px-4 py-2">
+        <div class="inline-flex items-center gap-1 bg-white rounded-full shadow-soft border border-brand-border/40 px-4 py-2 max-w-full overflow-x-auto no-scrollbar">
             
             {{-- Previous Page Link --}}
             @if ($paginator->onFirstPage())
@@ -45,9 +45,9 @@
 
             {{-- Go to Page Input --}}
             <div class="flex items-center gap-3 ml-2 pl-4 border-l border-brand-border">
-                <span class="text-sm font-ui text-brand-muted whitespace-nowrap">Đến trang</span>
+                <label for="pagination-page-input" class="text-sm font-ui text-brand-muted whitespace-nowrap cursor-pointer">Đến trang</label>
                 <form onsubmit="event.preventDefault(); const url = new URL(window.location.href); url.searchParams.set('page', this.page.value); window.location.href = url.toString();" class="flex items-center">
-                    <input type="number" name="page" min="1" max="{{ $paginator->lastPage() }}" placeholder="{{ $paginator->currentPage() }}" class="w-14 h-9 text-center bg-brand-surface border-none rounded-xl focus:ring-2 focus:ring-brand-accent text-sm font-ui text-brand-text font-bold outline-none appearance-none transition-shadow m-0 p-0" style="-moz-appearance: textfield;">
+                    <input id="pagination-page-input" aria-label="Nhập số trang cần chuyển đến" type="number" name="page" min="1" max="{{ $paginator->lastPage() }}" value="{{ $paginator->currentPage() }}" onfocus="this.select()" class="w-14 h-9 text-center bg-brand-surface border-none rounded-xl focus:ring-2 focus:ring-brand-accent text-sm font-ui text-brand-text font-bold outline-none appearance-none transition-shadow m-0 p-0" style="-moz-appearance: textfield;">
                 </form>
             </div>
             

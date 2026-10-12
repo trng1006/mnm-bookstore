@@ -15,7 +15,79 @@ class HomeController extends Controller
      */
     public function showHomePage(Request $request): View
     {
-        $categories = Category::limit(10)->get();
+        $categories = Category::all();
+
+        $heroBanners = [
+            [
+                'image' => asset('images/banners/banner-1.webp'),
+                'title' => 'Bách Khoa Tri Thức',
+                'subtitle' => 'Mở rộng thế giới qua từng trang sách khoa học và tư duy',
+                'link' => route('books.index', ['category' => 'khoa-hoc']),
+            ],
+            [
+                'image' => asset('images/banners/banner-2.webp'),
+                'title' => 'Saigon Books - Phát Triển Bản Thân',
+                'subtitle' => 'Bộ sách kỹ năng sống và tư duy hiện đại dành cho giới trẻ',
+                'link' => route('books.index', ['category' => 'tam-ly-ky-nang-song']),
+            ],
+            [
+                'image' => asset('images/banners/banner-3.webp'),
+                'title' => 'Omega Plus - Tinh Hoa Tri Thức',
+                'subtitle' => 'Dòng sách lịch sử, văn hóa và tư tưởng kinh điển thế giới',
+                'link' => route('books.index', ['category' => 'lich-su']),
+            ],
+            [
+                'image' => asset('images/banners/banner-4.webp'),
+                'title' => 'MCBooks - Tự Tin Hội Nhập',
+                'subtitle' => 'Học ngoại ngữ và phương pháp đọc sách hiệu quả mỗi ngày',
+                'link' => route('books.index', ['category' => 'sach-giao-khoa-tham-khao']),
+            ],
+            [
+                'image' => asset('images/banners/banner-5.webp'),
+                'title' => 'Đại Tiệc Sách MNM Bookstore',
+                'subtitle' => 'Ưu đãi ngập tràn lên đến 30% cho hàng trăm tựa sách tuyển chọn',
+                'link' => route('books.index'),
+            ],
+        ];
+
+        $bestSellersByCategory = Category::with(['books' => function ($q) {
+            $q->with('author')
+                ->orderByDesc('is_best_seller')
+                ->orderByDesc('reviews_count')
+                ->orderByDesc('rating')
+                ->limit(5);
+        }])->get()->filter(function ($cat) {
+            return $cat->books->isNotEmpty();
+        })->map(function ($cat) {
+            return [
+                'id' => $cat->id,
+                'name' => $cat->name,
+                'slug' => $cat->slug,
+                'books' => $cat->books->map(function ($book, $index) {
+                    $soldInWeek = max(25, (int) ($book->reviews_count * 18 + ($book->rating * 10) - ($index * 12)));
+                    return [
+                        'id' => $book->id,
+                        'rank' => $index + 1,
+                        'title' => $book->title,
+                        'slug' => $book->slug,
+                        'author' => $book->author->name ?? 'Nhiều tác giả',
+                        'publisher' => $book->publisher ?? 'NXB Trẻ',
+                        'price' => (float) $book->price_current,
+                        'price_formatted' => number_format($book->price_current, 0, ',', '.') . ' ₫',
+                        'original_price' => (float) $book->price_old,
+                        'original_price_formatted' => $book->price_old ? number_format($book->price_old, 0, ',', '.') . ' ₫' : null,
+                        'discount_percent' => (int) $book->discount_percent,
+                        'cover' => $book->cover_image,
+                        'rating' => (float) $book->rating,
+                        'reviews_count' => (int) $book->reviews_count,
+                        'sold_in_week' => $soldInWeek,
+                        'description' => strip_tags($book->description ?? ''),
+                        'short_description' => \Illuminate\Support\Str::limit(strip_tags($book->description ?? ''), 180),
+                        'stock' => (int) $book->stock,
+                    ];
+                })->values()->all(),
+            ];
+        })->values()->all();
 
         $bestSellers = Book::with('author', 'category')
             ->where('is_best_seller', true)
@@ -92,6 +164,14 @@ class HomeController extends Controller
             return view('client.pages.partials.new_books_grid', compact('newBooks', 'sort'));
         }
 
-        return view('client.pages.home', compact('categories', 'bestSellers', 'newBooks', 'features', 'sort'));
+        return view('client.pages.home', compact(
+            'categories',
+            'heroBanners',
+            'bestSellersByCategory',
+            'bestSellers',
+            'newBooks',
+            'features',
+            'sort'
+        ));
     }
 }

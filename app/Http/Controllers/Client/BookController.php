@@ -21,15 +21,21 @@ class BookController extends Controller
         }
 
         // Lọc theo từ khóa tìm kiếm
-        if ($request->filled('search')) {
-            $searchTerm = $request->get('search');
+        $searchTerm = $request->get('search') ?? $request->get('q');
+        if (!empty($searchTerm)) {
+            $searchTerm = trim($searchTerm);
             $searchSlug = \Illuminate\Support\Str::slug($searchTerm);
             
             $query->where(function ($q) use ($searchTerm, $searchSlug) {
                 $q->where('title', 'like', '%' . $searchTerm . '%')
                   ->orWhere('slug', 'like', '%' . $searchSlug . '%')
+                  ->orWhere('description', 'like', '%' . $searchTerm . '%')
                   ->orWhereHas('author', function ($q2) use ($searchTerm, $searchSlug) {
                       $q2->where('name', 'like', '%' . $searchTerm . '%')
+                         ->orWhere('slug', 'like', '%' . $searchSlug . '%');
+                  })
+                  ->orWhereHas('category', function ($q3) use ($searchTerm, $searchSlug) {
+                      $q3->where('name', 'like', '%' . $searchTerm . '%')
                          ->orWhere('slug', 'like', '%' . $searchSlug . '%');
                   });
             });
@@ -61,8 +67,10 @@ class BookController extends Controller
 
         // Phân trang 12 quyển
         $books = $query->paginate(12)->withQueryString();
+        $categories = \App\Models\Category::withCount('books')->orderBy('name')->get();
+        $selectedCategory = $request->get('category');
 
-        return view('client.pages.books.index', compact('books', 'sort'));
+        return view('client.pages.books.index', compact('books', 'sort', 'categories', 'selectedCategory'));
     }
 
     /**

@@ -11,6 +11,7 @@
                 @if($book->cover)
                     <img src="{{ $book->cover }}" alt="{{ $book->title }}" 
                          loading="lazy"
+                         decoding="async"
                          width="300" height="400"
                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                          onerror="this.outerHTML='<span class=\'font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700\'>Hình Bìa</span>'">
@@ -41,6 +42,6 @@
 </div>
 
 <!-- Pagination -->
-<div class="flex justify-center mt-10">
-    {{ $newBooks->appends(['sort' => request('sort')])->links('vendor.pagination.minimal') }}
+<div class="mt-8">
+    {{ $newBooks->links() }}
 </div>

@@ -33,14 +33,17 @@
             </div>
         </div>
 
-        <!-- Center: Search Bar (AJAX) -->
+        <!-- Center: Search Bar (AJAX & Form Submit) -->
         <div class="w-full lg:w-auto lg:flex-1 max-w-2xl lg:mx-8 order-last lg:order-none relative group" id="ajax-search-container">
-            <input type="text" id="ajax-search-input" placeholder="Tìm kiếm sách, tác giả..." autocomplete="off" class="w-full bg-white border border-brand-border rounded-full py-2 px-5 pr-12 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent font-ui text-brand-text transition-colors shadow-sm relative z-10">
-            <button aria-label="Tìm kiếm" class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-brand-accent text-white hover:bg-brand-accent-hover transition-colors rounded-full p-1.5 z-10 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-            </button>
+            <form method="GET" action="{{ route('books.index') }}" id="header-search-form" class="relative w-full">
+                <label for="ajax-search-input" class="sr-only">Tìm kiếm sách, tác giả</label>
+                <input type="text" name="search" id="ajax-search-input" aria-label="Tìm kiếm sách, tác giả" value="{{ request('search') ?? request('q') ?? '' }}" placeholder="Tìm kiếm sách, tác giả..." autocomplete="off" class="w-full bg-white border border-brand-border rounded-full py-2 px-5 pr-12 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent font-ui text-brand-text transition-colors shadow-sm relative z-10">
+                <button type="submit" aria-label="Tìm kiếm" class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-brand-accent text-white hover:bg-brand-accent-hover transition-colors rounded-full p-1.5 z-20 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </button>
+            </form>
 
             <!-- AJAX Results Dropdown -->
             <div id="ajax-search-results" class="absolute top-[100%] left-0 right-0 bg-white border border-brand-border rounded-2xl shadow-lg mt-2 overflow-hidden z-50 hidden max-h-96 overflow-y-auto pt-1 font-ui">
@@ -113,7 +116,7 @@
                     </div>
                 </div>
             @else
-                <a aria-label="Đăng nhập" href="{{ route('login') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
+                <a aria-label="Thông báo" href="{{ route('login') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
                     <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                     <span class="text-[11px] font-ui font-semibold hidden md:block">Thông báo</span>
                 </a>
@@ -164,7 +167,7 @@
                     </div>
                 </div>
             @else
-                <a aria-label="Đăng nhập" href="{{ route('login') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
+                <a aria-label="Tài khoản" href="{{ route('login') }}" class="flex flex-col items-center justify-center text-brand-text hover:text-brand-accent transition-colors">
                     <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     <span class="text-[11px] font-ui font-semibold hidden md:block">Tài khoản</span>
                 </a>

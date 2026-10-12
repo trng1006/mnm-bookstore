@@ -7,21 +7,56 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div>
-            <h1 class="font-display text-3xl font-bold text-brand-text mb-2">Tủ sách của chúng tôi</h1>
-            <p class="text-brand-muted font-ui">Khám phá {{ $books->total() }} tựa sách thú vị</p>
+            <h1 class="font-display text-3xl font-bold text-brand-text mb-2">
+                @if(request('search'))
+                    Kết quả tìm kiếm cho "{{ request('search') }}"
+                @elseif(request('category'))
+                    Danh mục: {{ $categories->firstWhere('slug', request('category'))->name ?? request('category') }}
+                @else
+                    Tủ sách của chúng tôi
+                @endif
+            </h1>
+            <div class="flex items-center gap-3">
+                <p class="text-brand-muted font-ui">Tìm thấy {{ $books->total() }} tựa sách</p>
+                @if(request('search') || request('category'))
+                    <a href="{{ route('books.index') }}" class="text-xs font-ui text-brand-accent hover:underline font-semibold flex items-center gap-1">
+                        ✕ Xóa bộ lọc
+                    </a>
+                @endif
+            </div>
         </div>
 
         <!-- Filter/Sort -->
-        <form method="GET" action="{{ route('books.index') }}" class="flex items-center gap-3">
-            <label for="sort" class="font-ui text-brand-text font-medium">Sắp xếp theo:</label>
-            <select aria-label="Sắp xếp" name="sort" id="sort" onchange="this.form.submit()" class="bg-white border border-brand-border text-brand-text text-sm rounded-lg focus:ring-brand-accent focus:border-brand-accent block p-2.5 outline-none font-ui shadow-sm cursor-pointer">
-                <option value="newest" {{ $sort === 'newest' ? 'selected' : '' }}>Mới nhất</option>
-                <option value="popular" {{ $sort === 'popular' ? 'selected' : '' }}>Phổ biến nhất</option>
-                <option value="price_asc" {{ $sort === 'price_asc' ? 'selected' : '' }}>Giá: Thấp đến Cao</option>
-                <option value="price_desc" {{ $sort === 'price_desc' ? 'selected' : '' }}>Giá: Cao đến Thấp</option>
-                <option value="name_asc" {{ $sort === 'name_asc' ? 'selected' : '' }}>Tên: A - Z</option>
-                <option value="name_desc" {{ $sort === 'name_desc' ? 'selected' : '' }}>Tên: Z - A</option>
-            </select>
+        <form method="GET" action="{{ route('books.index') }}" class="flex flex-wrap items-center gap-3">
+            @if(request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+            @endif
+
+            <!-- Category Dropdown -->
+            <div class="flex items-center gap-2">
+                <label for="category" class="font-ui text-brand-text font-medium text-sm hidden sm:inline">Danh mục:</label>
+                <select aria-label="Danh mục sách" name="category" id="category" onchange="this.form.submit()" class="bg-white border border-brand-border text-brand-text text-sm rounded-lg focus:ring-brand-accent focus:border-brand-accent block p-2.5 outline-none font-ui shadow-sm cursor-pointer">
+                    <option value="">Tất cả danh mục ({{ $categories->sum('books_count') }})</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->slug }}" {{ ($selectedCategory ?? '') === $cat->slug ? 'selected' : '' }}>
+                            {{ $cat->name }} ({{ $cat->books_count }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Sort Dropdown -->
+            <div class="flex items-center gap-2">
+                <label for="sort" class="font-ui text-brand-text font-medium text-sm hidden sm:inline">Sắp xếp:</label>
+                <select aria-label="Sắp xếp" name="sort" id="sort" onchange="this.form.submit()" class="bg-white border border-brand-border text-brand-text text-sm rounded-lg focus:ring-brand-accent focus:border-brand-accent block p-2.5 outline-none font-ui shadow-sm cursor-pointer">
+                    <option value="newest" {{ $sort === 'newest' ? 'selected' : '' }}>Mới nhất</option>
+                    <option value="popular" {{ $sort === 'popular' ? 'selected' : '' }}>Phổ biến nhất</option>
+                    <option value="price_asc" {{ $sort === 'price_asc' ? 'selected' : '' }}>Giá: Thấp đến Cao</option>
+                    <option value="price_desc" {{ $sort === 'price_desc' ? 'selected' : '' }}>Giá: Cao đến Thấp</option>
+                    <option value="name_asc" {{ $sort === 'name_asc' ? 'selected' : '' }}>Tên: A - Z</option>
+                    <option value="name_desc" {{ $sort === 'name_desc' ? 'selected' : '' }}>Tên: Z - A</option>
+                </select>
+            </div>
         </form>
     </div>
 

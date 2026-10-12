@@ -151,7 +151,7 @@
                 <div class="mb-8">
                     <h3 class="font-display text-lg font-bold text-brand-text mb-2">Tóm tắt nội dung</h3>
                     <div class="text-brand-muted font-ui leading-relaxed text-sm md:text-base prose max-w-none">
-                        {{ $book->description ?? 'Đang cập nhật tóm tắt nội dung cho tác phẩm này.' }}
+                        {!! nl2br(e(strip_tags($book->description ?? 'Đang cập nhật tóm tắt nội dung cho tác phẩm này.'))) !!}
                     </div>
                 </div>
             </div>

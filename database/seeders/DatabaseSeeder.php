@@ -340,5 +340,8 @@ class DatabaseSeeder extends Seeder
 
         // 7. Import raw Fahasa data
         $this->call(FahasaBookSeeder::class);
+
+        // 8. Seed Đánh giá & Bình luận độc giả
+        $this->call(ReviewSeeder::class);
     }
 }

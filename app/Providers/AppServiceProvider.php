@@ -21,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.tailwind');
+
         // Global variables for Header
         View::composer('client.partials.header', function ($view) {
             // Fetch directly to avoid __PHP_Incomplete_Class serialization issues in some environments

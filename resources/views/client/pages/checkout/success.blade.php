@@ -4,6 +4,18 @@
 
 @section('content')
 <div class="py-12 max-w-3xl mx-auto">
+    @if(session('error'))
+        <div class="mb-6 p-4 bg-red-50 text-red-800 border border-red-200 rounded-xl text-sm font-ui">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if(session('warning'))
+        <div class="mb-6 p-4 bg-amber-50 text-amber-800 border border-amber-200 rounded-xl text-sm font-ui">
+            {{ session('warning') }}
+        </div>
+    @endif
+
     <!-- Success Banner Card -->
     <div class="bg-white rounded-[var(--radius-card)] border border-brand-border p-8 md:p-12 shadow-sm text-center mb-8">
         <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
@@ -29,6 +41,9 @@
                 <div>
                     <span class="text-xs text-brand-muted block">Phương thức thanh toán</span>
                     <strong class="text-brand-text">{{ $order->payment_method_label }}</strong>
+                    <span class="ml-2 inline-block px-2 py-0.5 rounded-full text-xs font-semibold border {{ $order->payment_status_badge_class }}">
+                        {{ $order->payment_status_label }}
+                    </span>
                 </div>
             </div>
 
@@ -70,6 +85,11 @@
 
         <!-- Actions -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 font-ui">
+            @if($order->payment_method === 'bank_transfer' && $order->payment_status !== 'paid' && $order->status !== \App\Models\Order::STATUS_CANCELLED && $order->total_amount > 0)
+                <a href="{{ route('checkout.payos.pay', $order->order_number) }}" class="w-full sm:w-auto inline-flex items-center justify-center font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-6 py-3.5 rounded-xl shadow-soft hover:shadow-hover hover:-translate-y-0.5 transition-all duration-300">
+                    Thanh toán ngay qua QR (payOS)
+                </a>
+            @endif
             <a href="{{ route('account.orders.show', $order->order_number) }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 font-bold text-white bg-brand-accent hover:bg-brand-accent-hover px-6 py-3.5 rounded-xl shadow-soft hover:shadow-hover hover:-translate-y-0.5 transition-all duration-300">
                 <span>Xem chi tiết & Theo dõi đơn</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>

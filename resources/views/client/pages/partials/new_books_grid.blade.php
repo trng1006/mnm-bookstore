@@ -14,9 +14,9 @@
                          decoding="async"
                          width="300" height="400"
                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                         onerror="this.outerHTML='<span class=\'font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700\'>Hình Bìa</span>'">
+                         onerror="this.outerHTML='<span class=\'font-ui font-medium text-brand-text/80 group-hover:scale-105 transition-transform duration-700\'>Hình Bìa</span>'">
                 @else
-                    <span class="font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700">Hình Bìa</span>
+                    <span class="font-ui font-medium text-brand-text/80 group-hover:scale-105 transition-transform duration-700">Hình Bìa</span>
                 @endif
                 <div class="absolute inset-y-0 left-0 w-1 bg-gradient-to-r from-black/5 to-transparent"></div>
             </div>

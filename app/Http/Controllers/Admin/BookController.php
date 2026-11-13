@@ -27,18 +27,8 @@ class BookController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:books',
-            'category_id' => 'required|exists:categories,id',
-            'author_id' => 'required|exists:authors,id',
-            'price_current' => 'required|integer|min:0',
-            'price_old' => 'nullable|integer|min:0',
-            'cover_image' => 'nullable|string|max:255',
-            'discount_percent' => 'nullable|integer|min:0|max:100',
-            'is_new' => 'boolean',
-            'is_best_seller' => 'boolean',
-        ]);
+        $validated = $this->validateBook($request);
+        $validated['stock'] = $validated['stock'] ?? 0;
 
         Book::create($validated);
 
@@ -55,22 +45,36 @@ class BookController extends Controller
 
     public function update(Request $request, Book $book)
     {
-        $validated = $request->validate([
+        $validated = $this->validateBook($request, $book);
+        if (array_key_exists('stock', $validated) && $validated['stock'] === null) {
+            unset($validated['stock']);
+        }
+
+        $book->update($validated);
+
+        return redirect()->route('admin.books.index')->with('success', 'Sách đã được cập nhật.');
+    }
+
+    private function validateBook(Request $request, ?Book $book = null): array
+    {
+        $slugRule = $book
+            ? 'required|string|max:255|unique:books,slug,' . $book->id
+            : 'required|string|max:255|unique:books';
+
+        return $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:books,slug,'.$book->id,
+            'slug' => $slugRule,
             'category_id' => 'required|exists:categories,id',
             'author_id' => 'required|exists:authors,id',
             'price_current' => 'required|integer|min:0',
             'price_old' => 'nullable|integer|min:0',
+            'stock' => 'nullable|integer|min:0',
+            'description' => 'nullable|string',
             'cover_image' => 'nullable|string|max:255',
             'discount_percent' => 'nullable|integer|min:0|max:100',
             'is_new' => 'boolean',
             'is_best_seller' => 'boolean',
         ]);
-
-        $book->update($validated);
-
-        return redirect()->route('admin.books.index')->with('success', 'Sách đã được cập nhật.');
     }
 
     public function destroy(Book $book)

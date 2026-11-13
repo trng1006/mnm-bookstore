@@ -108,10 +108,10 @@
                             <input type="radio" name="payment_method" value="bank_transfer" {{ !auth()->check() ? 'checked' : '' }} class="mt-1 text-brand-accent focus:ring-brand-accent">
                             <div class="flex-1">
                                 <div class="font-bold text-sm text-brand-text flex items-center justify-between">
-                                    <span>Thanh toán trực tuyến (VNPay / MoMo)</span>
+                                    <span>Chuyển khoản ngân hàng (VietQR / payOS)</span>
                                     <span class="text-xs font-semibold text-brand-accent">Bắt buộc cho khách vãng lai</span>
                                 </div>
-                                <p class="text-xs text-brand-muted mt-1">Thanh toán qua cổng VNPay (hỗ trợ thẻ ATM, Visa/Master, mã QR).</p>
+                                <p class="text-xs text-brand-muted mt-1">Thanh toán qua mã QR ngân hàng tự sinh (hỗ trợ tất cả ứng dụng ngân hàng tại Việt Nam).</p>
                             </div>
                         </label>
                     </div>

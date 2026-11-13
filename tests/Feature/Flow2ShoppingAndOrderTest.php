@@ -294,8 +294,8 @@ class Flow2ShoppingAndOrderTest extends TestCase
         $this->assertNotNull($order);
         $this->assertNull($order->user_id);
         $this->assertEquals('bank_transfer', $order->payment_method);
-        
-        $response->assertRedirect(route('checkout.success', $order->order_number));
+
+        $response->assertRedirect(route('checkout.payos.pay', $order->order_number));
     }
 
     /** 5. Admin xem danh sách đơn hàng */

@@ -8,8 +8,8 @@
   --color-brand-surface: #F0EBE1;  /* Slightly darker cream for cards/surfaces */
   --color-brand-text: #2D3748;     /* Deep warm slate instead of harsh black */
   --color-brand-muted: #4A5568;    /* Soft gray for secondary text */
-  --color-brand-accent: #E27D60;   /* Warm terracotta/coral */
-  --color-brand-accent-hover: #C86A50;
+  --color-brand-accent: #B84528;   /* Warm terracotta (WCAG AA compliant) */
+  --color-brand-accent-hover: #9A371E;
   --color-brand-border: #E2D9C8;   /* Soft warm border */
 
   /* Typography */

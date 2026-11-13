@@ -169,9 +169,11 @@ class CheckoutController extends Controller
         // 4. Xóa session giỏ hàng
         session()->forget(['cart', 'coupon']);
 
-        // Nếu thanh toán online, thực tế ta sẽ redirect qua route thanh toán (VNPay), ở đây tạm thời redirect qua success.
-        // TODO: Redirect sang VNPay nếu payment_method == 'bank_transfer'
-        
+        // 5. Nếu chọn thanh toán chuyển khoản trực tuyến, chuyển hướng sang cổng payOS (Cas ID)
+        if ($validated['payment_method'] === 'bank_transfer' && $order->total_amount > 0) {
+            return redirect()->route('checkout.payos.pay', $order->order_number);
+        }
+
         return redirect()->route('checkout.success', $order->order_number)->with('success', 'Đặt hàng thành công!');
     }
 

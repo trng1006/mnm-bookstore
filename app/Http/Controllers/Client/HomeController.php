@@ -149,7 +149,7 @@ class HomeController extends Controller
                     'isNew' => $book->is_new,
                     'hasDiscount' => false,
                     'tagText' => 'MỚI',
-                    'tagColor' => 'bg-[#6B8A44] text-white',
+                    'tagColor' => 'bg-[#4A6B22] text-white',
                 ];
             });
 
@@ -173,5 +173,21 @@ class HomeController extends Controller
             'features',
             'sort'
         ));
+    }
+
+    /**
+     * Hiển thị trang Trung tâm hỗ trợ (Vận chuyển, Đổi trả, Thanh toán, FAQ).
+     */
+    public function showSupportPage(): View
+    {
+        return view('client.pages.support');
+    }
+
+    /**
+     * Hiển thị trang Chính sách bảo mật & Điều khoản dịch vụ.
+     */
+    public function showPolicyPage(): View
+    {
+        return view('client.pages.policy');
     }
 }

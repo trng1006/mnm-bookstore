@@ -12,6 +12,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 /**
  * @property int $id
  * @property string $order_number
+ * @property int|null $payos_order_code
  * @property int|null $user_id
  * @property string $customer_name
  * @property string $customer_email
@@ -82,6 +83,11 @@ class Order extends Model implements Auditable
         return $this->hasMany(OrderStatusHistory::class)->orderBy('created_at', 'desc');
     }
 
+    public function paymentTransactions(): HasMany
+    {
+        return $this->hasMany(PaymentTransaction::class)->latest();
+    }
+
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
@@ -114,7 +120,7 @@ class Order extends Model implements Auditable
     {
         return match ($this->payment_method) {
             'cod' => 'Thanh toán khi nhận hàng (COD)',
-            'bank_transfer' => 'Chuyển khoản ngân hàng',
+            'bank_transfer' => 'Chuyển khoản ngân hàng (VietQR / payOS)',
             default => $this->payment_method,
         };
     }
@@ -124,6 +130,7 @@ class Order extends Model implements Auditable
         return match ($this->payment_status) {
             'paid' => 'Đã thanh toán',
             'pending' => 'Chưa thanh toán',
+            'failed' => 'Thanh toán thất bại',
             default => $this->payment_status,
         };
     }
@@ -133,6 +140,7 @@ class Order extends Model implements Auditable
         return match ($this->payment_status) {
             'paid' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
             'pending' => 'bg-amber-100 text-amber-800 border-amber-200',
+            'failed' => 'bg-rose-100 text-rose-800 border-rose-200',
             default => 'bg-gray-100 text-gray-800 border-gray-200',
         };
     }
@@ -140,5 +148,56 @@ class Order extends Model implements Auditable
     public static function generateOrderNumber(): string
     {
         return 'MNM-'.date('Ymd').'-'.strtoupper(substr(uniqid(), -5));
+    }
+
+    /**
+     * Hoàn lại tồn kho sách và lượt sử dụng coupon khi đơn hàng bị hủy hoặc thanh toán thất bại.
+     */
+    public function releaseStockAndCoupon(): void
+    {
+        foreach ($this->items()->get() as $item) {
+            if ($item->book_id) {
+                $book = Book::where('id', $item->book_id)->lockForUpdate()->first();
+                if ($book) {
+                    $book->increment('stock', $item->quantity);
+                }
+            }
+        }
+
+        if ($this->coupon_code) {
+            Coupon::where('code', $this->coupon_code)
+                ->where('used_count', '>', 0)
+                ->decrement('used_count');
+        }
+    }
+
+    /**
+     * Trừ lại tồn kho và lượt sử dụng coupon khi đơn ở trạng thái payment_failed được kích hoạt lại.
+     */
+    public function reserveStockAndCoupon(bool $allowPartialOnPaid = false): void
+    {
+        foreach ($this->items()->get() as $item) {
+            if ($item->book_id) {
+                $book = Book::where('id', $item->book_id)->lockForUpdate()->first();
+                if (!$book) {
+                    continue;
+                }
+
+                if ($book->stock < $item->quantity) {
+                    if ($allowPartialOnPaid) {
+                        $book->update(['stock' => 0]);
+                        continue;
+                    }
+
+                    throw new \RuntimeException("InsufficientStock: Sách '{$book->title}' không đủ tồn kho (còn {$book->stock}).");
+                }
+
+                $book->decrement('stock', $item->quantity);
+            }
+        }
+
+        if ($this->coupon_code) {
+            Coupon::where('code', $this->coupon_code)->increment('used_count');
+        }
     }
 }

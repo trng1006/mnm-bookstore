@@ -55,6 +55,11 @@ class AuthorController extends Controller
 
     public function destroy(Author $author)
     {
+        if ($author->books()->count() > 0) {
+            return redirect()->route('admin.authors.index')
+                ->with('error', 'Không thể xóa tác giả đang có sách trong hệ thống. Vui lòng chuyển hoặc xóa sách trước.');
+        }
+
         $author->delete();
 
         return redirect()->route('admin.authors.index')->with('success', 'Tác giả đã bị xóa.');

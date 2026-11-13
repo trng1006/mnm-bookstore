@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuthorController;
 use App\Http\Controllers\Admin\BookController as AdminBookController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\UserController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Client\ChatController;
 use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\NotificationController;
+use App\Http\Controllers\Client\PayOSController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,6 +26,8 @@ use Illuminate\Support\Facades\Route;
 
 // --- 1. PUBLIC ROUTES (Khách xem sản phẩm) ---
 Route::get('/', [HomeController::class, 'showHomePage'])->name('home');
+Route::get('/ho-tro', [HomeController::class, 'showSupportPage'])->name('pages.support');
+Route::get('/chinh-sach', [HomeController::class, 'showPolicyPage'])->name('pages.policy');
 Route::post('/chat/respond', [ChatController::class, 'respond'])->name('chat.respond');
 
 Route::get('/books', [BookController::class, 'index'])->name('books.index');
@@ -61,6 +65,14 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
     Route::get('/', [CheckoutController::class, 'showCheckoutForm'])->name('index');
     Route::post('/', [CheckoutController::class, 'processCheckout'])->name('process');
     Route::get('/success/{order_number}', [CheckoutController::class, 'showOrderSuccess'])->name('success');
+
+    // payOS (Cas ID) - đặt route tĩnh trước {order_number}
+    Route::get('/payos/return', [PayOSController::class, 'handleReturn'])->name('payos.return');
+    Route::get('/payos/cancel', [PayOSController::class, 'handleCancel'])->name('payos.cancel');
+    Route::post('/payos/webhook', [PayOSController::class, 'handleWebhook'])->name('payos.webhook');
+    Route::get('/payos/{order_number}/status', [PayOSController::class, 'checkPaymentStatus'])->name('payos.status');
+    Route::post('/payos/{order_number}/cancel', [PayOSController::class, 'cancelPayment'])->name('payos.cancel-order');
+    Route::get('/payos/{order_number}', [PayOSController::class, 'createPaymentLink'])->name('payos.pay');
 });
 
 // --- 6. CUSTOMER ACCOUNT & NOTIFICATIONS ROUTES ---
@@ -68,6 +80,7 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
     // Hồ sơ cá nhân & Lịch sử đơn hàng
     Route::get('/profile', [AccountController::class, 'showProfile'])->name('profile');
     Route::post('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/password', [AccountController::class, 'updatePassword'])->name('profile.password');
     Route::get('/orders/{order_number}', [AccountController::class, 'showOrderDetail'])->name('orders.show');
     Route::post('/orders/{order_number}/cancel', [AccountController::class, 'cancelOrder'])->name('orders.cancel');
 
@@ -99,12 +112,13 @@ Route::middleware(['auth', 'role:admin|staff'])->prefix('admin')->name('admin.')
         Route::resource('categories', CategoryController::class);
     });
 
-    // Quản lý đơn hàng
+    // Quản lý đơn hàng & mã giảm giá
     Route::middleware('permission:manage_orders')->group(function() {
         Route::get('orders/search/ajax', [AdminOrderController::class, 'ajaxSearch'])->name('orders.ajaxSearch');
         Route::get('orders/{order}/pdf', [AdminOrderController::class, 'exportPdf'])->name('orders.pdf');
         Route::resource('orders', AdminOrderController::class)->only(['index', 'show']);
         Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+        Route::resource('coupons', CouponController::class)->except(['show']);
     });
 
     // Quản lý người dùng (Chỉ Admin)

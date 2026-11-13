@@ -252,12 +252,12 @@
 
                                     <div class="text-xs md:text-sm text-brand-muted flex flex-wrap items-center gap-x-4 gap-y-1 mb-4">
                                         <div>
-                                            <span class="opacity-70">👤 Tác giả:</span> 
+                                            <span class="text-brand-muted">Tác giả:</span> 
                                             <strong id="detail-book-author" class="text-brand-text font-semibold">{{ $firstBook['author'] }}</strong>
                                         </div>
-                                        <span class="opacity-40">|</span>
+                                        <span class="text-brand-muted">|</span>
                                         <div>
-                                            <span class="opacity-70">📖 NXB:</span> 
+                                            <span class="text-brand-muted">NXB:</span> 
                                             <strong id="detail-book-publisher" class="text-brand-text font-semibold">{{ $firstBook['publisher'] }}</strong>
                                         </div>
                                     </div>
@@ -370,7 +370,7 @@
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-brand-accent/10 rounded-full blur-[100px] pointer-events-none"></div>
             
             <div class="relative z-10 max-w-4xl mx-auto">
-                <span class="inline-block font-ui font-extrabold tracking-widest text-brand-accent mb-5 uppercase text-xs md:text-sm bg-brand-accent/15 px-4 py-1.5 rounded-full border border-brand-accent/30 backdrop-blur-sm">Ưu đãi dành cho người yêu sách</span>
+                <span class="inline-block font-ui font-extrabold tracking-widest text-amber-300 mb-5 uppercase text-xs md:text-sm bg-brand-accent/20 px-4 py-1.5 rounded-full border border-amber-300/35 backdrop-blur-sm">Ưu đãi dành cho người yêu sách</span>
                 <h2 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight tracking-tight">Giảm đến 20% cho một số tựa sách được chọn</h2>
                 <p class="font-ui text-brand-bg/90 mb-10 text-base md:text-xl lg:text-2xl max-w-2xl mx-auto leading-relaxed">Khám phá các tựa sách kinh điển và best-seller với mức giá ưu đãi chưa từng có. Chương trình có hạn.</p>
                 <a href="{{ route('books.index') }}" class="inline-flex items-center gap-2 font-ui font-bold text-brand-text bg-white hover:bg-brand-accent hover:text-white transition-all duration-300 px-10 py-4.5 md:px-12 md:py-5 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 text-base md:text-lg">

@@ -8,6 +8,7 @@ use App\Models\OrderItem;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AccountController extends Controller
 {
@@ -43,6 +44,32 @@ class AccountController extends Controller
         $user->update($validated);
 
         return back()->with('success', 'Cập nhật thông tin hồ sơ thành công!');
+    }
+
+    /**
+     * Đổi mật khẩu tài khoản cá nhân
+     */
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'different:current_password'],
+        ], [
+            'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại.',
+            'current_password.current_password' => 'Mật khẩu hiện tại không chính xác.',
+            'password.required' => 'Vui lòng nhập mật khẩu mới.',
+            'password.min' => 'Mật khẩu mới phải có ít nhất 8 ký tự.',
+            'password.confirmed' => 'Xác nhận mật khẩu mới không khớp.',
+            'password.different' => 'Mật khẩu mới phải khác mật khẩu hiện tại.',
+        ]);
+
+        /** @var User $user */
+        $user = auth()->user();
+        $user->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return back()->with('password_success', 'Đổi mật khẩu thành công!');
     }
 
     /**
@@ -83,15 +110,7 @@ class AccountController extends Controller
                 'status' => Order::STATUS_CANCELLED,
             ]);
 
-            // Hoàn trả lại tồn kho khi khách hàng tự hủy đơn
-            foreach ($order->items as $item) {
-                if ($item->book_id) {
-                    $book = \App\Models\Book::where('id', $item->book_id)->lockForUpdate()->first();
-                    if ($book) {
-                        $book->increment('stock', $item->quantity);
-                    }
-                }
-            }
+            $order->releaseStockAndCoupon();
 
             // Tạo lịch sử trạng thái
             \App\Models\OrderStatusHistory::create([

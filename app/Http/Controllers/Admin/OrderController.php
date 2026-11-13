@@ -93,14 +93,9 @@ class OrderController extends Controller
                     $wasNotCancelled = !in_array($oldStatus, [Order::STATUS_CANCELLED, Order::STATUS_PAYMENT_FAILED]);
 
                     if ($isCancellation && $wasNotCancelled) {
-                        foreach ($order->items as $item) {
-                            if ($item->book_id) {
-                                $book = \App\Models\Book::where('id', $item->book_id)->lockForUpdate()->first();
-                                if ($book) {
-                                    $book->increment('stock', $item->quantity);
-                                }
-                            }
-                        }
+                        $order->releaseStockAndCoupon();
+                    } elseif ($oldStatus === Order::STATUS_PAYMENT_FAILED && $newStatus === Order::STATUS_PENDING) {
+                        $order->reserveStockAndCoupon();
                     }
                 }
 

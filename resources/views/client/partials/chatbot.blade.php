@@ -1,12 +1,12 @@
 <!-- AI Chatbot Widget -->
 <div id="ai-chatbot" class="fixed bottom-6 right-6 z-50 flex flex-col items-end font-ui">
     <!-- Chat Window (Hidden by default) -->
-    <div id="chat-window" class="hidden w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-brand-border overflow-hidden mb-4 transform transition-all duration-300 origin-bottom-right scale-95 opacity-0 flex flex-col">
+    <div id="chat-window" class="hidden w-[calc(100vw-2rem)] sm:w-[440px] md:w-[480px] bg-white rounded-2xl shadow-xl border border-brand-border overflow-hidden mb-4 transform transition-all duration-300 origin-bottom-right scale-95 opacity-0 flex flex-col">
         <!-- Header -->
         <div class="bg-brand-accent text-white px-4 py-3 flex justify-between items-center rounded-t-2xl shadow-sm">
             <div class="flex items-center gap-2">
                 <svg class="w-5 h-5 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"></path></svg>
-                <h3 class="font-semibold text-sm">MNM AI Assistant</h3>
+                <p class="font-semibold text-sm">MNM AI Assistant</p>
             </div>
             <button id="close-chat" aria-label="Đóng cửa sổ chat" class="text-white/80 hover:text-white transition-colors" type="button">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -14,7 +14,7 @@
         </div>
 
         <!-- Chat Body -->
-        <div id="chat-messages" class="h-80 overflow-y-auto p-4 bg-brand-surface flex flex-col gap-3 text-sm">
+        <div id="chat-messages" class="h-[440px] sm:h-[480px] max-h-[65vh] overflow-y-auto p-4 bg-brand-surface flex flex-col gap-3 text-sm">
             <!-- Bot Message -->
             <div class="flex gap-2 w-max max-w-[85%]">
                 <div class="w-7 h-7 rounded-full bg-brand-accent flex items-center justify-center flex-shrink-0 mt-auto mb-1">
@@ -100,27 +100,79 @@
         toggleBtn.addEventListener('click', toggleChat);
         closeBtn.addEventListener('click', toggleChat);
 
+        const escapeHtml = (str) => {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        };
+
+        const formatInlineText = (safeText) => {
+            // Chuyển **text** thành in đậm gọn gàng, loại bỏ dấu * dư thừa
+            return safeText
+                .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-semibold text-brand-text">$1</strong>')
+                .replace(/\*/g, '');
+        };
+
+        const formatChatMessage = (rawText, isUser) => {
+            const safe = escapeHtml(String(rawText ?? ''));
+            if (isUser) {
+                return safe.replace(/\n/g, '<br>');
+            }
+
+            // Chuẩn hóa trường hợp AI viết nhiều mục "- **..." hoặc "- \"..." dính trên cùng một dòng
+            const normalized = safe
+                .replace(/\r\n/g, '\n')
+                .replace(/\s+-\s+(?=\*\*|&quot;)/g, '\n- ');
+
+            const lines = normalized.split('\n');
+            const htmlParts = [];
+
+            lines.forEach((rawLine) => {
+                const line = rawLine.trim();
+                if (!line) {
+                    return;
+                }
+
+                // Bỏ dấu # tiêu đề markdown nếu có
+                const cleanHeading = line.replace(/^#{1,6}\s+/, '');
+
+                if (/^[-•*]\s+/.test(cleanHeading)) {
+                    const itemText = formatInlineText(cleanHeading.replace(/^[-•*]\s+/, ''));
+                    htmlParts.push(
+                        `<div class="pl-3.5 relative my-1 leading-snug"><span class="absolute left-0 top-0 text-brand-accent font-bold">&bull;</span><span>${itemText}</span></div>`
+                    );
+                } else {
+                    htmlParts.push(`<p class="my-1 leading-relaxed">${formatInlineText(cleanHeading)}</p>`);
+                }
+            });
+
+            return htmlParts.join('') || formatInlineText(safe);
+        };
+
         const appendMessage = (text, isUser = false) => {
             const wrapper = document.createElement('div');
-            wrapper.className = `flex gap-2 w-max max-w-[85%] ${isUser ? 'self-end flex-row-reverse' : ''}`;
-            
+            wrapper.className = `flex gap-2 w-full ${isUser ? 'justify-end' : 'justify-start'}`;
+
             const avatar = isUser ? '' : `
                 <div class="w-7 h-7 rounded-full bg-brand-accent flex items-center justify-center flex-shrink-0 mt-auto mb-1">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 </div>
             `;
-            
-            const bubbleStyle = isUser 
-                ? 'bg-brand-accent text-white rounded-2xl rounded-br-sm shadow-sm' 
+
+            const bubbleStyle = isUser
+                ? 'bg-brand-accent text-white rounded-2xl rounded-br-sm shadow-sm'
                 : 'bg-white border border-brand-border text-brand-text rounded-2xl rounded-bl-sm shadow-sm';
 
             wrapper.innerHTML = `
                 ${avatar}
-                <div class="px-3 py-2 ${bubbleStyle} leading-relaxed">
-                    ${text}
+                <div class="max-w-[85%] min-w-0 break-words px-3.5 py-2.5 ${bubbleStyle} leading-relaxed">
+                    ${formatChatMessage(text, isUser)}
                 </div>
             `;
-            
+
             chatMessages.appendChild(wrapper);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         };

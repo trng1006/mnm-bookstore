@@ -32,7 +32,8 @@ class UserController extends Controller
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
-        User::create($validated);
+        $user = User::create($validated);
+        $this->syncUserRole($user, $validated['role']);
 
         return redirect()->route('admin.users.index')->with('success', 'Người dùng đã được thêm.');
     }
@@ -56,8 +57,16 @@ class UserController extends Controller
         }
 
         $user->update($validated);
+        $this->syncUserRole($user, $validated['role']);
 
         return redirect()->route('admin.users.index')->with('success', 'Cập nhật người dùng thành công.');
+    }
+
+    private function syncUserRole(User $user, string $role): void
+    {
+        in_array($role, ['admin', 'staff'], true)
+            ? $user->syncRoles([$role])
+            : $user->syncRoles([]);
     }
 
     public function destroy(User $user)

@@ -85,7 +85,7 @@ class DashboardController extends Controller
     {
         $fileName = 'doanh_thu_'.date('Ymd_His').'.csv';
         $orders = Order::where('status', 'completed')
-            ->with(['user', 'orderItems.book'])
+            ->with(['user', 'items.book'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -109,7 +109,7 @@ class DashboardController extends Controller
 
             foreach ($orders as $order) {
                 $row['Ma_Don_Hang']  = $order->order_number;
-                $row['Khach_Hang']    = $order->customer_info['name'] ?? 'Khách vãng lai';
+                $row['Khach_Hang']    = $order->customer_name ?? $order->user->name ?? 'Khách vãng lai';
                 $row['Ngay_Mua']      = $order->created_at->format('d/m/Y H:i');
                 $row['Tong_Tien']     = $order->total_amount;
                 $row['Trang_Thai']    = 'Hoàn thành';

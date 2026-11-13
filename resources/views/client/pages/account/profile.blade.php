@@ -23,7 +23,7 @@
                 <div class="w-20 h-20 bg-brand-accent/15 text-brand-accent rounded-full flex items-center justify-center font-bold text-2xl mx-auto mb-3">
                     {{ strtoupper(substr($user->name, 0, 1)) }}
                 </div>
-                <h3 class="font-display text-lg font-bold text-brand-text">{{ $user->name }}</h3>
+                <h2 class="font-display text-lg font-bold text-brand-text">{{ $user->name }}</h2>
                 <span class="text-xs text-brand-muted">{{ $user->email }}</span>
                 <div class="mt-2">
                     <span class="inline-block px-3 py-0.5 rounded-full text-xs font-semibold bg-brand-surface border border-brand-border text-brand-text">
@@ -41,8 +41,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase text-brand-muted mb-1">Email (Cố định)</label>
-                    <input type="email" value="{{ $user->email }}" disabled class="w-full bg-gray-100 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-brand-muted cursor-not-allowed">
+                    <label for="profile-email" class="block text-xs font-bold uppercase text-brand-muted mb-1">Email (Cố định)</label>
+                    <input type="email" id="profile-email" value="{{ $user->email }}" disabled class="w-full bg-gray-100 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-brand-muted cursor-not-allowed">
                 </div>
 
                 <div>
@@ -68,8 +68,9 @@
             </div>
         </div>
 
-        <!-- Right: Order History (8 cols) -->
-        <div class="lg:col-span-8 bg-white rounded-[var(--radius-card)] border border-brand-border p-6 md:p-8 shadow-sm font-ui">
+        <!-- Right: Order History & Password (8 cols) -->
+        <div class="lg:col-span-8 space-y-6 font-ui">
+        <div class="bg-white rounded-[var(--radius-card)] border border-brand-border p-6 md:p-8 shadow-sm">
             <div class="flex items-center justify-between mb-6 pb-4 border-b border-brand-border">
                 <h2 class="font-display text-xl font-bold text-brand-text flex items-center gap-2">
                     <svg class="w-5 h-5 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
@@ -145,6 +146,54 @@
                     </a>
                 </div>
             @endif
+        </div>
+
+        <!-- Đổi mật khẩu -->
+        <div id="doi-mat-khau" class="bg-white rounded-[var(--radius-card)] border border-brand-border p-6 md:p-8 shadow-sm">
+            <div class="mb-6 pb-4 border-b border-brand-border">
+                <h2 class="font-display text-xl font-bold text-brand-text">Đổi mật khẩu</h2>
+                <p class="text-xs text-brand-muted mt-1">Sử dụng mật khẩu tối thiểu 8 ký tự để bảo vệ tài khoản của bạn.</p>
+            </div>
+
+            @if(session('password_success'))
+                <div class="mb-5 p-4 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-sm">
+                    {{ session('password_success') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('account.profile.password') }}" class="space-y-4">
+                @csrf
+
+                <div>
+                    <label for="current_password" class="block text-xs font-bold uppercase text-brand-muted mb-1">Mật khẩu hiện tại</label>
+                    <input type="password" id="current_password" name="current_password" required class="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-accent">
+                    @error('current_password')
+                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="new_password" class="block text-xs font-bold uppercase text-brand-muted mb-1">Mật khẩu mới</label>
+                        <input type="password" id="new_password" name="password" required minlength="8" class="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-accent">
+                        @error('password')
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="new_password_confirmation" class="block text-xs font-bold uppercase text-brand-muted mb-1">Xác nhận mật khẩu mới</label>
+                        <input type="password" id="new_password_confirmation" name="password_confirmation" required minlength="8" class="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-accent">
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="font-bold text-white bg-brand-accent hover:bg-brand-accent-hover px-6 py-2.5 rounded-xl text-sm transition-colors shadow-sm cursor-pointer">
+                        Cập nhật mật khẩu
+                    </button>
+                </div>
+            </form>
+        </div>
         </div>
     </div>
 </div>

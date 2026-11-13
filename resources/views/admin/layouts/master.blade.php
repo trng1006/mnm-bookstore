@@ -45,6 +45,11 @@
                 <a href="{{ route('admin.authors.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('admin.authors.*') ? 'bg-brand-accent text-white' : 'text-brand-muted hover:bg-brand-bg hover:text-brand-text' }}">
                     Tác giả
                 </a>
+                @can('manage_orders')
+                <a href="{{ route('admin.coupons.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('admin.coupons.*') ? 'bg-brand-accent text-white' : 'text-brand-muted hover:bg-brand-bg hover:text-brand-text' }}">
+                    Mã giảm giá
+                </a>
+                @endcan
                 @if(auth()->user()->isAdmin())
                 <a href="{{ route('admin.users.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-brand-accent text-white' : 'text-brand-muted hover:bg-brand-bg hover:text-brand-text' }}">
                     Quản lý Người dùng

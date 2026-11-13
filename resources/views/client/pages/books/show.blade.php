@@ -39,7 +39,7 @@
         <div class="lg:col-span-5 flex flex-col items-center">
             <div class="relative w-full max-w-sm aspect-[3/4] bg-brand-surface rounded-2xl overflow-hidden shadow-soft border border-brand-border flex items-center justify-center">
                 @if($book->is_new)
-                    <span class="absolute top-4 left-4 px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm bg-[#9DB67A] text-white">
+                    <span class="absolute top-4 left-4 px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm bg-[#4A6B22] text-white">
                         MỚI
                     </span>
                 @elseif($book->discount_percent)
@@ -51,9 +51,9 @@
                 @if($book->cover_image)
                     <img src="{{ $book->cover_image }}" alt="{{ $book->title }}" 
                          class="w-full h-full object-cover"
-                         onerror="this.outerHTML='<span class=\'font-ui font-medium opacity-50\'>Hình Bìa Sách</span>'">
+                         onerror="this.outerHTML='<span class=\'font-ui font-medium text-brand-text/80\'>Hình Bìa Sách</span>'">
                 @else
-                    <span class="font-ui font-medium opacity-50">Hình Bìa Sách</span>
+                    <span class="font-ui font-medium text-brand-text/80">Hình Bìa Sách</span>
                 @endif
                 <div class="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-black/10 to-transparent"></div>
             </div>
@@ -136,12 +136,12 @@
                     <div>
                         <span class="text-brand-muted text-xs block mb-1">Tình trạng kho</span>
                         @if($book->hasInStock())
-                            <span class="font-semibold text-emerald-600 flex items-center gap-1">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Còn hàng ({{ $book->stock }})
+                            <span class="font-semibold text-emerald-700 flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-emerald-600"></span> Còn hàng ({{ $book->stock }})
                             </span>
                         @else
-                            <span class="font-semibold text-red-500 flex items-center gap-1">
-                                <span class="w-2 h-2 rounded-full bg-red-500"></span> Tạm hết hàng
+                            <span class="font-semibold text-red-600 flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-red-600"></span> Tạm hết hàng
                             </span>
                         @endif
                     </div>
@@ -149,7 +149,7 @@
 
                 <!-- Synopsis / Description -->
                 <div class="mb-8">
-                    <h3 class="font-display text-lg font-bold text-brand-text mb-2">Tóm tắt nội dung</h3>
+                    <h2 class="font-display text-lg font-bold text-brand-text mb-2">Tóm tắt nội dung</h2>
                     <div class="text-brand-muted font-ui leading-relaxed text-sm md:text-base prose max-w-none">
                         {!! nl2br(e(strip_tags($book->description ?? 'Đang cập nhật tóm tắt nội dung cho tác phẩm này.'))) !!}
                     </div>
@@ -165,9 +165,9 @@
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                         <!-- Quantity Stepper -->
                         <div class="flex items-center border border-brand-border rounded-xl overflow-hidden bg-white w-36 h-12 flex-shrink-0 shadow-sm">
-                            <button type="button" onclick="decrementQty()" class="w-10 h-full flex items-center justify-center text-brand-text hover:bg-brand-surface font-bold text-lg transition-colors cursor-pointer">−</button>
-                            <input type="number" id="quantity-input" name="quantity" value="1" min="1" max="{{ $book->stock }}" class="w-16 h-full text-center font-ui font-bold text-brand-text border-none focus:outline-none [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none">
-                            <button type="button" onclick="incrementQty({{ $book->stock }})" class="w-10 h-full flex items-center justify-center text-brand-text hover:bg-brand-surface font-bold text-lg transition-colors cursor-pointer">+</button>
+                            <button type="button" onclick="decrementQty()" aria-label="Giảm số lượng" class="w-10 h-full flex items-center justify-center text-brand-text hover:bg-brand-surface font-bold text-lg transition-colors cursor-pointer">−</button>
+                            <input type="number" id="quantity-input" name="quantity" aria-label="Số lượng" value="1" min="1" max="{{ $book->stock }}" class="w-16 h-full text-center font-ui font-bold text-brand-text border-none focus:outline-none [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none">
+                            <button type="button" onclick="incrementQty({{ $book->stock }})" aria-label="Tăng số lượng" class="w-10 h-full flex items-center justify-center text-brand-text hover:bg-brand-surface font-bold text-lg transition-colors cursor-pointer">+</button>
                         </div>
 
                         <!-- Add to cart -->
@@ -383,7 +383,7 @@
                 <div class="group block bg-white p-4 rounded-[var(--radius-card)] transition-all duration-500 hover:shadow-hover hover:-translate-y-2 border border-brand-border border-opacity-50 flex flex-col h-full">
                     <a href="{{ route('books.show', $related->slug) }}" class="block relative bg-brand-surface aspect-[3/4] mb-4 rounded-2xl flex items-center justify-center text-brand-muted text-sm overflow-hidden">
                         @if($related->is_new)
-                            <span class="absolute top-3 left-3 px-2.5 py-0.5 text-xs font-bold rounded-full z-10 shadow-sm bg-[#9DB67A] text-white">
+                            <span class="absolute top-3 left-3 px-2.5 py-0.5 text-xs font-bold rounded-full z-10 shadow-sm bg-[#4A6B22] text-white">
                                 MỚI
                             </span>
                         @elseif($related->discount_percent)
@@ -395,9 +395,9 @@
                         @if($related->cover_image)
                             <img src="{{ $related->cover_image }}" alt="{{ $related->title }}" 
                                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                 onerror="this.outerHTML='<span class=\'font-ui font-medium opacity-50\'>Hình Bìa</span>'">
+                                 onerror="this.outerHTML='<span class=\'font-ui font-medium text-brand-text/80\'>Hình Bìa</span>'">
                         @else
-                            <span class="font-ui font-medium opacity-50">Hình Bìa</span>
+                            <span class="font-ui font-medium text-brand-text/80">Hình Bìa</span>
                         @endif
                     </a>
 

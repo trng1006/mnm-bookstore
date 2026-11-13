@@ -69,7 +69,7 @@
                 <div class="relative mb-5">
                     <a href="{{ route('books.show', $book->slug) }}" class="block relative bg-brand-surface aspect-[3/4] rounded-2xl flex items-center justify-center text-brand-muted text-sm overflow-hidden">
                         @if($book->is_new)
-                            <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm bg-[#9DB67A] text-white">
+                            <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full z-10 shadow-sm bg-[#4A6B22] text-white">
                                 MỚI
                             </span>
                         @elseif($book->discount_percent)
@@ -81,9 +81,9 @@
                         @if($book->cover_image)
                             <img src="{{ $book->cover_image }}" alt="{{ $book->title }}" 
                                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                 onerror="this.outerHTML='<span class=\'font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700\'>Hình Bìa</span>'">
+                                 onerror="this.outerHTML='<span class=\'font-ui font-medium text-brand-text/80 group-hover:scale-105 transition-transform duration-700\'>Hình Bìa</span>'">
                         @else
-                            <span class="font-ui font-medium opacity-50 group-hover:scale-105 transition-transform duration-700">Hình Bìa</span>
+                            <span class="font-ui font-medium text-brand-text/80 group-hover:scale-105 transition-transform duration-700">Hình Bìa</span>
                         @endif
                         <div class="absolute inset-y-0 left-0 w-1 bg-gradient-to-r from-black/5 to-transparent"></div>
                     </a>
@@ -100,7 +100,7 @@
                 <!-- Info -->
                 <div class="px-2 flex flex-col flex-grow">
                     <a href="{{ route('books.show', $book->slug) }}">
-                        <h3 class="font-display text-lg font-bold mb-1 group-hover:text-brand-accent transition-colors line-clamp-2" title="{{ $book->title }}">{{ $book->title }}</h3>
+                        <h2 class="font-display text-lg font-bold mb-1 group-hover:text-brand-accent transition-colors line-clamp-2" title="{{ $book->title }}">{{ $book->title }}</h2>
                     </a>
                     <div class="text-brand-muted text-sm font-ui mb-2">{{ $book->author->name ?? 'Chưa rõ tác giả' }}</div>
                     

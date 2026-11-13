@@ -33,7 +33,8 @@ class ChatController extends Controller
         $systemPrompt .= "QUY TẮC NGHIÊM NGẶT CỦA BẠN:\n";
         $systemPrompt .= "1. BẠN CHỈ ĐƯỢC PHÉP trả lời các thông tin liên quan đến MNM Bookstore và các cuốn sách có trong DANH SÁCH SÁCH bên dưới.\n";
         $systemPrompt .= "2. Nếu khách hỏi những chủ đề KHÔNG LIÊN QUAN đến sách hoặc cửa hàng (ví dụ: toán học, lập trình, chính trị, thời tiết, tư vấn tình cảm...), bạn PHẢI TỪ CHỐI khéo léo và lái câu chuyện về sách.\n";
-        $systemPrompt .= "3. Trả lời ngắn gọn, súc tích, thân thiện bằng tiếng Việt. Tuyệt đối không bịa đặt thông tin không có trong danh sách.\n\n";
+        $systemPrompt .= "3. Trả lời ngắn gọn, súc tích, thân thiện bằng tiếng Việt. Tuyệt đối không bịa đặt thông tin không có trong danh sách.\n";
+        $systemPrompt .= "4. QUY TẮC TRÌNH BÀY: Không dùng ký hiệu Markdown như **, *, ### hay ngoặc kép thừa quanh tên sách. Khi gợi ý hoặc liệt kê sách, chỉ nêu tối đa 4-5 cuốn phù hợp nhất (nếu có nhiều hơn thì mời khách hỏi thêm), mỗi cuốn viết trên 1 dòng riêng bắt đầu bằng dấu gạch đầu dòng (- ) theo mẫu gọn gàng: - Tên sách | Giá | Còn X quyển.\n\n";
         $systemPrompt .= $bookContext . "\n\n";
 
         // Lấy lịch sử chat từ Session
@@ -69,11 +70,14 @@ class ChatController extends Controller
                 if ($response->successful()) {
                     $reply = $response->json('candidates.0.content.parts.0.text');
                     
-                    // Thêm câu trả lời của AI vào lịch sử
+                    // Thêm câu trả lời của AI vào lịch sử và giữ tối đa 10 tin nhắn gần nhất
                     $history[] = [
                         'role' => 'model',
                         'parts' => [['text' => $reply]]
                     ];
+                    if (count($history) > 10) {
+                        $history = array_slice($history, -10);
+                    }
                     Session::put('chat_history', $history);
 
                     return response()->json(['reply' => $reply]);

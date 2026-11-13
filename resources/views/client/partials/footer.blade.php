@@ -22,7 +22,7 @@
 
             <!-- Column 2: Khám phá -->
             <div>
-                <h3 class="font-display text-lg font-bold text-brand-text mb-6">Khám phá</h3>
+                <p class="font-display text-lg font-bold text-brand-text mb-6">Khám phá</p>
                 <ul class="space-y-3 font-ui text-brand-muted">
                     <li><a href="{{ route('books.index') }}" class="hover:text-brand-accent transition-colors">Sách mới</a></li>
                     <li><a href="{{ route('books.index', ['sort' => 'popular']) }}" class="hover:text-brand-accent transition-colors">Bán chạy</a></li>
@@ -34,19 +34,19 @@
 
             <!-- Column 3: Hỗ trợ -->
             <div>
-                <h3 class="font-display text-lg font-bold text-brand-text mb-6">Hỗ trợ</h3>
+                <p class="font-display text-lg font-bold text-brand-text mb-6">Hỗ trợ</p>
                 <ul class="space-y-3 font-ui text-brand-muted">
                     <li><a href="{{ route('orders.tracking') }}" class="hover:text-brand-accent transition-colors">Tra cứu đơn hàng</a></li>
-                    <li><a href="{{ route('home') }}#sach-moi" class="hover:text-brand-accent transition-colors">Vận chuyển & Giao nhận</a></li>
-                    <li><a href="{{ route('home') }}" class="hover:text-brand-accent transition-colors">Đổi trả & Hoàn tiền</a></li>
-                    <li><a href="{{ route('home') }}" class="hover:text-brand-accent transition-colors">Phương thức thanh toán</a></li>
-                    <li><a href="{{ route('home') }}" class="hover:text-brand-accent transition-colors">Câu hỏi thường gặp</a></li>
+                    <li><a href="{{ route('pages.support') }}#van-chuyen" class="hover:text-brand-accent transition-colors">Vận chuyển & Giao nhận</a></li>
+                    <li><a href="{{ route('pages.support') }}#doi-tra" class="hover:text-brand-accent transition-colors">Đổi trả & Hoàn tiền</a></li>
+                    <li><a href="{{ route('pages.support') }}#thanh-toan" class="hover:text-brand-accent transition-colors">Phương thức thanh toán</a></li>
+                    <li><a href="{{ route('pages.support') }}#faq" class="hover:text-brand-accent transition-colors">Câu hỏi thường gặp</a></li>
                 </ul>
             </div>
 
             <!-- Column 4: Tài khoản -->
             <div>
-                <h3 class="font-display text-lg font-bold text-brand-text mb-6">Tài khoản</h3>
+                <p class="font-display text-lg font-bold text-brand-text mb-6">Tài khoản</p>
                 <ul class="space-y-3 font-ui text-brand-muted">
                     <li><a href="{{ route('login') }}" class="hover:text-brand-accent transition-colors">Đăng nhập</a></li>
                     <li><a href="{{ route('register') }}" class="hover:text-brand-accent transition-colors">Đăng ký</a></li>
@@ -60,8 +60,8 @@
         <div class="border-t border-brand-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 font-ui text-brand-muted text-sm">
             <p>&copy; {{ date('Y') }} MNM Bookstore. All rights reserved.</p>
             <div class="flex items-center gap-4">
-                <a href="{{ route('home') }}" class="hover:text-brand-accent transition-colors">Chính sách bảo mật</a>
-                <a href="{{ route('home') }}" class="hover:text-brand-accent transition-colors">Điều khoản dịch vụ</a>
+                <a href="{{ route('pages.policy') }}#bao-mat" class="hover:text-brand-accent transition-colors">Chính sách bảo mật</a>
+                <a href="{{ route('pages.policy') }}#dieu-khoan" class="hover:text-brand-accent transition-colors">Điều khoản dịch vụ</a>
             </div>
         </div>
     </div>

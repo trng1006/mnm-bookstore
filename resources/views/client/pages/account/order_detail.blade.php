@@ -246,6 +246,13 @@
                             {{ $order->payment_status_label }}
                         </span>
                     </div>
+                    @if($order->payment_method === 'bank_transfer' && $order->payment_status !== 'paid' && in_array($order->status, [\App\Models\Order::STATUS_PENDING, \App\Models\Order::STATUS_PAYMENT_FAILED]) && $order->total_amount > 0)
+                        <div class="pt-3">
+                            <a href="{{ route('checkout.payos.pay', $order->order_number) }}" class="inline-flex items-center justify-center w-full font-bold text-xs text-white bg-brand-accent hover:bg-brand-accent-hover px-4 py-2.5 rounded-xl transition-colors shadow-soft">
+                                Thanh toán ngay qua QR (payOS)
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

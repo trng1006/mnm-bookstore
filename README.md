@@ -35,6 +35,12 @@ MNM Bookstore là hệ thống website bán sách trực tuyến xây dựng tr�
 
 ## Hướng dẫn cài đặt và khởi chạy
 
+**Cách 1: Chạy nhanh một chạm (macOS)**
+
+Nhấn đúp vào file `start.command` trong Finder (hoặc chạy `./start.command` trong Terminal). Script sẽ tự kiểm tra `.env`, tạo khóa ứng dụng, cài thư viện còn thiếu, chạy migration/seed nếu chưa có DB, build giao diện và tự mở trình duyệt tại `http://127.0.0.1:8000`.
+
+**Cách 2: Cài đặt thủ công**
+
 **Bước 1: Clone mã nguồn**
 ```bash
 git clone https://github.com/trng1006/mnm-bookstore.git

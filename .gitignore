@@ -35,3 +35,6 @@ Thumbs.db
 
 DEFENSE_GUIDE.md
 .ua/
+/rules.md
+/DESIGN.md
+/database/mnm_bookstore_backup.sql

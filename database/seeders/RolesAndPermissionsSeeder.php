@@ -21,6 +21,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage_categories',
             'manage_orders',
             'manage_payments',
+            'manage_reviews',
             'view_dashboard',
             'soft_delete_books'
         ];
@@ -31,7 +32,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Create roles and assign created permissions
         $staffRole = Role::firstOrCreate(['name' => 'staff']);
-        $staffRole->syncPermissions(['manage_books', 'manage_categories', 'manage_orders', 'view_dashboard']);
+        $staffRole->syncPermissions(['manage_books', 'manage_categories', 'manage_orders', 'manage_reviews', 'view_dashboard']);
 
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $adminRole->syncPermissions(Permission::all());

@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="MNM Bookstore Admin Panel">
     <title>Admin Panel - @yield('title')</title>
     
@@ -50,11 +51,29 @@
                     Mã giảm giá
                 </a>
                 @endcan
+                @can('manage_reviews')
+                <a href="{{ route('admin.reviews.index') }}" class="flex items-center justify-between px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('admin.reviews.*') ? 'bg-brand-accent text-white' : 'text-brand-muted hover:bg-brand-bg hover:text-brand-text' }}">
+                    <span>Bình luận & Đánh giá</span>
+                    @php
+                        $unrepliedReviewCount = \App\Models\Review::where(function ($q) {
+                            $q->whereNull('admin_reply')->orWhere('admin_reply', '');
+                        })->count();
+                    @endphp
+                    @if($unrepliedReviewCount > 0)
+                        <span class="text-xs px-2 py-0.5 rounded-full {{ request()->routeIs('admin.reviews.*') ? 'bg-white text-brand-accent' : 'bg-brand-accent text-white' }}">
+                            {{ $unrepliedReviewCount }}
+                        </span>
+                    @endif
+                </a>
+                @endcan
                 @if(auth()->user()->isAdmin())
                 <a href="{{ route('admin.users.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-brand-accent text-white' : 'text-brand-muted hover:bg-brand-bg hover:text-brand-text' }}">
                     Quản lý Người dùng
                 </a>
                 @endif
+                <a href="{{ route('admin.ai.logs') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('admin.ai.logs') ? 'bg-brand-accent text-white' : 'text-brand-muted hover:bg-brand-bg hover:text-brand-text' }}">
+                    Lịch sử thao tác AI
+                </a>
                 <div class="pt-4 mt-4 border-t border-brand-border">
                     <a href="{{ route('home') }}" class="flex items-center px-4 py-2 text-sm font-medium text-brand-muted hover:text-brand-text">
                         Về trang khách
@@ -97,6 +116,7 @@
 
     </div>
     
+    @include('admin.partials.ai_assistant')
     @stack('scripts')
 </body>
 </html>

@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
 /**
  * @property int $id
@@ -30,8 +32,10 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, Review> $reviews
  * @property-read Collection<int, OrderItem> $orderItems
  */
-class Book extends Model
+class Book extends Model implements AuditableContract
 {
+    use Auditable;
+
     protected $guarded = [];
 
     public function author()
@@ -49,6 +53,11 @@ class Book extends Model
         return $this->hasMany(Review::class)->latest();
     }
 
+    public function visibleReviews()
+    {
+        return $this->hasMany(Review::class)->where('is_visible', true)->latest();
+    }
+
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
@@ -61,8 +70,9 @@ class Book extends Model
 
     public function updateRatingStats(): void
     {
-        $avgRating = $this->reviews()->avg('rating') ?? 0;
-        $count = $this->reviews()->count();
+        $visibleQuery = $this->reviews()->where('is_visible', true);
+        $avgRating = (clone $visibleQuery)->avg('rating') ?? 0;
+        $count = (clone $visibleQuery)->count();
         $this->update([
             'rating' => round($avgRating, 1),
             'reviews_count' => $count,

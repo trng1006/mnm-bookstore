@@ -161,12 +161,18 @@
                                         <span class="text-xs font-semibold text-brand-text">{{ $review->rating }}/5</span>
                                         <span class="text-xs text-brand-muted font-ui line-clamp-1 italic max-w-xs">“{{ $review->comment }}”</span>
                                     </div>
-                                    <button type="button" 
-                                            onclick="openReviewModal('{{ $book->id }}', '{{ addslashes($book->title) }}', '{{ $item->book_cover ?? '' }}', '{{ $book->slug }}', {{ $review->rating }}, '{{ addslashes($review->comment) }}')"
-                                            class="inline-flex items-center gap-1 text-xs font-bold text-brand-accent hover:text-brand-accent-hover transition-colors cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/80">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                        Sửa đánh giá
-                                    </button>
+                                    @if($review->is_visible)
+                                        <button type="button" 
+                                                onclick="openReviewModal('{{ $book->id }}', '{{ addslashes($book->title) }}', '{{ $item->book_cover ?? '' }}', '{{ $book->slug }}', {{ $review->rating }}, '{{ addslashes($review->comment) }}')"
+                                                class="inline-flex items-center gap-1 text-xs font-bold text-brand-accent hover:text-brand-accent-hover transition-colors cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/80">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                            Sửa đánh giá
+                                        </button>
+                                    @else
+                                        <span class="text-[11px] font-semibold text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg">
+                                            Đánh giá đang bị quản trị viên ẩn
+                                        </span>
+                                    @endif
                                 @else
                                     <div class="text-xs text-brand-muted font-ui">
                                         Bạn thấy cuốn sách này như thế nào?

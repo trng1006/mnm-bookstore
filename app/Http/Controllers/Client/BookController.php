@@ -79,7 +79,7 @@ class BookController extends Controller
     public function showBookDetails(string $slug)
     {
         /** @var Book $book */
-        $book = Book::with(['author', 'category', 'reviews.user'])
+        $book = Book::with(['author', 'category', 'visibleReviews.user', 'visibleReviews.repliedBy'])
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -107,20 +107,30 @@ class BookController extends Controller
             $relatedBooks = $relatedBooks->concat($extraBooks);
         }
 
-        // Thống kê phân bổ sao
+        // Thống kê phân bổ sao chỉ tính trên các bình luận đang hiển thị
         $ratingCounts = [
-            5 => $book->reviews->where('rating', 5)->count(),
-            4 => $book->reviews->where('rating', 4)->count(),
-            3 => $book->reviews->where('rating', 3)->count(),
-            2 => $book->reviews->where('rating', 2)->count(),
-            1 => $book->reviews->where('rating', 1)->count(),
+            5 => $book->visibleReviews->where('rating', 5)->count(),
+            4 => $book->visibleReviews->where('rating', 4)->count(),
+            3 => $book->visibleReviews->where('rating', 3)->count(),
+            2 => $book->visibleReviews->where('rating', 2)->count(),
+            1 => $book->visibleReviews->where('rating', 1)->count(),
         ];
 
-        // Kiểm tra quyền đánh giá của user hiện tại
+        // Kiểm tra quyền đánh giá của user hiện tại (kể cả trường hợp đánh giá bị Admin ẩn)
         $userCanReview = auth()->check() ? auth()->user()->hasPurchasedBook($book->id) : false;
-        $userExistingReview = auth()->check() ? $book->reviews->where('user_id', auth()->id())->first() : null;
+        $userExistingReview = auth()->check()
+            ? Review::where('book_id', $book->id)->where('user_id', auth()->id())->first()
+            : null;
+        $isReviewHiddenByAdmin = $userExistingReview && ! $userExistingReview->is_visible;
 
-        return view('client.pages.books.show', compact('book', 'relatedBooks', 'ratingCounts', 'userCanReview', 'userExistingReview'));
+        return view('client.pages.books.show', compact(
+            'book',
+            'relatedBooks',
+            'ratingCounts',
+            'userCanReview',
+            'userExistingReview',
+            'isReviewHiddenByAdmin'
+        ));
     }
 
     /**
@@ -147,6 +157,23 @@ class BookController extends Controller
             return back()->with('error', 'Bạn chỉ có thể đánh giá sản phẩm sau khi đã mua và đơn hàng được giao thành công.');
         }
 
+        // Khóa chỉnh sửa nếu đánh giá trước đó đã bị quản trị viên ẩn
+        $existingReview = Review::where('user_id', auth()->id())
+            ->where('book_id', $book->id)
+            ->first();
+
+        if ($existingReview && ! $existingReview->is_visible) {
+            $hiddenMessage = 'Đánh giá của bạn cho sách này đang bị quản trị viên ẩn và không thể chỉnh sửa.';
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $hiddenMessage,
+                ], 403);
+            }
+
+            return back()->with('error', $hiddenMessage);
+        }
+
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'required|string|min:5|max:1000',
@@ -164,6 +191,7 @@ class BookController extends Controller
             [
                 'rating' => $validated['rating'],
                 'comment' => $validated['comment'],
+                'is_visible' => true,
             ]
         );
 

@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\AiAssistantController;
 use App\Http\Controllers\Admin\AuthorController;
 use App\Http\Controllers\Admin\BookController as AdminBookController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Client\AccountController;
@@ -125,5 +127,24 @@ Route::middleware(['auth', 'role:admin|staff'])->prefix('admin')->name('admin.')
     Route::middleware('permission:manage_users')->group(function() {
         Route::resource('users', UserController::class);
     });
+
+    // Quản lý bình luận & đánh giá sản phẩm
+    Route::middleware('permission:manage_reviews')->group(function () {
+        Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+        Route::patch('reviews/{review}/visibility', [AdminReviewController::class, 'toggleVisibility'])->name('reviews.toggleVisibility');
+        Route::post('reviews/{review}/reply', [AdminReviewController::class, 'reply'])->name('reviews.reply');
+        Route::delete('reviews/{review}/reply', [AdminReviewController::class, 'deleteReply'])->name('reviews.deleteReply');
+        Route::delete('reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+    });
+
+    // Trợ lý AI Admin & Nhật ký hoàn tác
+    Route::prefix('ai')->name('ai.')->group(function () {
+        Route::post('/respond', [AiAssistantController::class, 'respond'])->name('respond');
+        Route::post('/confirm', [AiAssistantController::class, 'confirmAction'])->name('confirm');
+        Route::post('/cancel', [AiAssistantController::class, 'cancelAction'])->name('cancel');
+        Route::post('/clear', [AiAssistantController::class, 'clearHistory'])->name('clear');
+        Route::post('/undo/{log}', [AiAssistantController::class, 'undoAction'])->name('undo');
+    });
+    Route::get('ai-logs', [AiAssistantController::class, 'listLogs'])->name('ai.logs');
 });
 

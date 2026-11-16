@@ -42,4 +42,8 @@ return [
         'base_url' => env('PAYOS_BASE_URL', 'https://api-merchant.payos.vn'),
     ],
 
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+    ],
+
 ];

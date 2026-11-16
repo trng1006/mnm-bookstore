@@ -223,7 +223,7 @@
                         </svg>
                     @endfor
                 </div>
-                <p class="font-ui text-sm text-brand-muted">Dựa trên {{ $book->reviews->count() }} lượt đánh giá</p>
+                <p class="font-ui text-sm text-brand-muted">Dựa trên {{ $book->visibleReviews->count() }} lượt đánh giá</p>
             </div>
 
             <!-- Star Breakdown (8 cols) -->
@@ -231,7 +231,7 @@
                 @foreach([5, 4, 3, 2, 1] as $star)
                     @php
                         $count = $ratingCounts[$star] ?? 0;
-                        $totalReviews = $book->reviews->count();
+                        $totalReviews = $book->visibleReviews->count();
                         $percent = $totalReviews > 0 ? round(($count / $totalReviews) * 100) : 0;
                     @endphp
                     <div class="flex items-center gap-3 text-sm">
@@ -252,7 +252,17 @@
             </h3>
 
             @auth
-                @if($userCanReview)
+                @if($isReviewHiddenByAdmin)
+                    <div class="p-5 bg-red-50/80 border border-red-200 rounded-2xl flex items-start gap-3.5 text-red-900 font-ui">
+                        <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"></path></svg>
+                        <div>
+                            <h4 class="font-bold text-sm text-red-900">Đánh giá của bạn đang bị quản trị viên ẩn</h4>
+                            <p class="text-xs text-red-800 mt-1 leading-relaxed">
+                                Nhận xét trước đó của bạn cho cuốn sách này đã bị quản trị viên ẩn do không phù hợp với tiêu chuẩn cộng đồng và hiện không thể chỉnh sửa.
+                            </p>
+                        </div>
+                    </div>
+                @elseif($userCanReview)
                     <div class="mb-4 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full text-xs font-ui font-semibold">
                         <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                         Xác nhận đã mua hàng tại MNM Bookstore
@@ -324,7 +334,7 @@
 
         <!-- Review List -->
         <div class="space-y-6">
-            @forelse($book->reviews as $review)
+            @forelse($book->visibleReviews as $review)
                 <div class="border-b border-brand-border/60 pb-6 last:border-none last:pb-0">
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-3">
@@ -356,6 +366,18 @@
                     <p class="font-ui text-sm text-brand-text leading-relaxed pl-12">
                         {{ $review->comment }}
                     </p>
+
+                    @if(!empty($review->admin_reply))
+                        <div class="mt-3 ml-12 p-3.5 bg-brand-surface border-l-4 border-brand-accent rounded-r-xl">
+                            <div class="flex items-center justify-between gap-2 mb-1">
+                                <span class="font-ui font-bold text-xs text-brand-accent">Phản hồi từ MNM Bookstore</span>
+                                @if($review->replied_at)
+                                    <span class="font-ui text-[11px] text-brand-muted">{{ $review->replied_at->diffForHumans() }}</span>
+                                @endif
+                            </div>
+                            <p class="font-ui text-sm text-brand-text leading-relaxed">{{ $review->admin_reply }}</p>
+                        </div>
+                    @endif
                 </div>
             @empty
                 <div class="text-center py-8 text-brand-muted font-ui text-sm">
